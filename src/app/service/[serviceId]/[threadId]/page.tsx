@@ -58,7 +58,7 @@ async function getThreads(): Promise<IThread[]> {
             const { name, age } = person;
             \`\`\`
           `,
-          imageToken: 'https://picsum.photos/400/300',
+          imageToken: '',
           youtubeID: null,
           createdAt: new Date('2024-08-09 15:07:00'),
           threadId: 'thread_03',
@@ -68,16 +68,12 @@ async function getThreads(): Promise<IThread[]> {
           id: 'reply_06',
           userId: 'user_09',
           name: 'CodeRefactor',
-          content: `
-            當然，別忘了還有 **模組化** 和 **Promise** 的使用：
-  
-            \`\`\`javascript
-            import { myFunction } from './myModule';
-            
-            myFunction()
-              .then(result => console.log(result))
-              .catch(error => console.error(error));
-            \`\`\`
+          content: `當然，別忘了還有 **模組化** 和 **Promise** 的使用：
+\`\`\`javascript
+import { myFunction } from './myModule';
+
+myFunction().then(result => console.log(result)).catch(error => console.error(error));
+\`\`\`
           `,
           imageToken: 'https://picsum.photos/400/300',
           youtubeID: null,
@@ -92,8 +88,7 @@ async function getThreads(): Promise<IThread[]> {
       userId: 'user_01',
       title: 'Markdown 基本使用介紹',
       name: 'MarkdownLover',
-      content: `
-        **Markdown** 是一種輕量級標記語言，用於格式化純文本。以下是一些常用的語法：
+      content: `**Markdown** 是一種輕量級標記語言，用於格式化純文本。以下是一些常用的語法：
   
         - **粗體**: 使用 \`**\` 包裹文字。
         - *斜體*: 使用 \`*\` 包裹文字。

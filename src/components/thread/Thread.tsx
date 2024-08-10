@@ -1,7 +1,14 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { IThread, IReply } from '@/lib/types/thread';
 import ReactMarkdown from 'react-markdown';
@@ -11,105 +18,134 @@ interface ThreadComponentProps {
   thread: IThread;
 }
 
-interface IPostProps {
+const PostContent: React.FC<{ content: string }> = ({ content }) => (
+  <ReactMarkdown
+    remarkPlugins={[remarkGfm]}
+    className="prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
+  >
+    {content}
+  </ReactMarkdown>
+);
+
+const MediaContent: React.FC<{
+  imageToken: string | null;
+  youtubeID: string | null;
+}> = ({ imageToken, youtubeID }) => {
+  if (imageToken) {
+    return (
+      <img
+        src={`${imageToken}`}
+        alt="Thread image"
+        className="rounded-lg w-full h-auto object-cover"
+      />
+    );
+  }
+  if (youtubeID) {
+    return (
+      <div className="aspect-w-16 aspect-h-9">
+        <iframe
+          src={`https://www.youtube.com/embed/${youtubeID}`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="rounded-lg w-full h-full"
+        ></iframe>
+      </div>
+    );
+  }
+  return null;
+};
+
+const PostComponent: React.FC<{
   imageToken: string | null;
   youtubeID: string | null;
   content: string;
-}
-
-const PostComponent: React.FC<IPostProps> = ({
-  imageToken,
-  youtubeID,
-  content,
-}) => {
-  return (
-    <div className="flex flex-col md:flex-row md:space-x-4">
-      {imageToken || youtubeID ? (
-        <>
-          <div className="w-full md:w-1/2">
-            {imageToken && (
-              <img
-                src={`${imageToken}`}
-                alt="Thread image"
-                className="rounded-lg max-w-full max-h-96 object-cover"
-              />
-            )}
-            {youtubeID && (
-              <div className="aspect-w-16 aspect-h-9">
-                <iframe
-                  src={`https://www.youtube.com/embed/${youtubeID}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="rounded-lg w-full h-full"
-                ></iframe>
-              </div>
-            )}
-          </div>
-          <div className="w-full md:w-1/2 overflow-hidden">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-          </div>
-        </>
-      ) : (
-        <div className="w-full md:w-2/3 lg:w-1/2 mx-auto">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl"
-          >
-            {content}
-          </ReactMarkdown>
+}> = ({ imageToken, youtubeID, content }) => (
+  <div className="flex flex-col md:flex-row md:space-x-4">
+    {imageToken || youtubeID ? (
+      <>
+        <div className="w-full md:w-1/2 mb-4 md:mb-0">
+          <MediaContent imageToken={imageToken} youtubeID={youtubeID} />
         </div>
-      )}
-    </div>
-  );
-};
+        <div className="w-full md:w-1/2">
+          <PostContent content={content} />
+        </div>
+      </>
+    ) : (
+      <div className="w-full md:w-2/3 mx-auto">
+        <PostContent content={content} />
+      </div>
+    )}
+  </div>
+);
+
+const PostMeta: React.FC<{
+  name: string;
+  userId: string;
+  createdAt: Date;
+  id: string;
+}> = ({ name, userId, createdAt, id }) => (
+  <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+    <span className="font-semibold text-gray-700">{name}</span>
+    <span>ID: {userId}</span>
+    <span className="ml-auto">
+      {createdAt.toLocaleString()} No: {id}
+    </span>
+  </div>
+);
 
 const ReplyComponent: React.FC<{ reply: IReply }> = ({ reply }) => (
-  <div className="border-t border-gray-200 pt-4 mt-4">
-    <div className="flex justify-between items-center mb-2">
-      <p className="font-semibold">{reply.name}</p>
-      <p className="text-xs text-gray-500">
-        {new Date(reply.createdAt).toLocaleString()}
-      </p>
-    </div>
-    <PostComponent
-      imageToken={reply.youtubeID}
-      content={reply.content}
-      youtubeID={reply.youtubeID}
+  <div className="mt-4">
+    <PostMeta
+      name={reply.name}
+      userId={reply.userId}
+      createdAt={reply.createdAt}
+      id={reply.id}
     />
+    <div className="mt-2">
+      <PostComponent
+        imageToken={reply.imageToken}
+        content={reply.content}
+        youtubeID={reply.youtubeID}
+      />
+    </div>
   </div>
 );
 
 const ThreadComponent: React.FC<ThreadComponentProps> = ({ thread }) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
-
   const visibleRepliesNum = 2;
-
   const visibleReplies = showAllReplies
     ? thread.replies
-    : thread.replies.slice(-visibleRepliesNum); // 顯示最後幾個回覆
+    : thread.replies.slice(-visibleRepliesNum);
 
   return (
     <Card className="mb-6 overflow-hidden">
-      <CardContent className="p-6">
-        <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold mb-2">{thread.title}</h2>
-          <p className="text-sm text-gray-500">
-            {thread.name} • {new Date(thread.createdAt).toLocaleString()}
-          </p>
-        </div>
-
+      <CardHeader className="pb-3">
+        <CardTitle className="text-2xl font-bold text-center mb-2">
+          {thread.title}
+        </CardTitle>
+        <PostMeta
+          name={thread.name}
+          userId={thread.userId}
+          createdAt={thread.createdAt}
+          id={thread.id}
+        />
+      </CardHeader>
+      <CardContent className="pt-3">
         <PostComponent
           content={thread.content}
           imageToken={thread.imageToken}
           youtubeID={thread.youtubeID}
         />
-
-        <div className="mt-6">
+      </CardContent>
+      {thread.replies.length > 0 && (
+        <CardFooter className="flex flex-col pt-4">
+          <Separator className="mb-4" />
           {thread.replies.length > visibleRepliesNum && (
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => setShowAllReplies(!showAllReplies)}
-              className="mt-4"
+              className="w-full mb-4"
             >
               {showAllReplies ? (
                 <>
@@ -123,11 +159,16 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({ thread }) => {
               )}
             </Button>
           )}
-          {visibleReplies.map((reply, index) => (
-            <ReplyComponent key={reply.id} reply={reply} />
-          ))}
-        </div>
-      </CardContent>
+          <div className="space-y-4 w-full">
+            {visibleReplies.map((reply, index) => (
+              <React.Fragment key={reply.id}>
+                {index > 0 && <Separator />}
+                <ReplyComponent reply={reply} />
+              </React.Fragment>
+            ))}
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 };

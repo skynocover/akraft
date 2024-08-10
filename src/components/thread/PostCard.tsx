@@ -1,5 +1,4 @@
 'use client';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,7 +18,6 @@ export default function PostCard({ markdownInfo }: PostCardProps) {
           <Input placeholder="Title" className="text-base" />
           <Input placeholder="Name" className="text-base" />
           <Textarea placeholder="Content" className="h-24 text-sm" />
-
           <Tabs defaultValue="image">
             <TabsList className="grid grid-cols-2">
               <TabsTrigger value="image">Upload</TabsTrigger>
@@ -46,12 +44,13 @@ export default function PostCard({ markdownInfo }: PostCardProps) {
               </div>
             </TabsContent>
           </Tabs>
-
           <div className="text-sm text-gray-500 whitespace-pre-wrap">
             {markdownInfo}
           </div>
-
-          <Button type="submit" className="w-full bg-blue-500 text-white">
+          <Button
+            type="submit"
+            className="w-full bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200"
+          >
             Submit
           </Button>
         </form>
