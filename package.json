@@ -7,14 +7,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "xata:gen": "xata codegen --output src/lib/xata/xata.ts"
+    "xata:gen": "xata codegen --output src/lib/xata/xata.ts",
+    "xata:upload": "xata schema upload src/lib/xata/schema.json"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@web-std/file": "^3.0.3",
     "@xata.io/client": "^0.30.0",
+    "axios": "^1.7.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.427.0",

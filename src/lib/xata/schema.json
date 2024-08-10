@@ -1,0 +1,59 @@
+{
+  "tables": [
+    {
+      "name": "services",
+      "columns": [
+        { "name": "name", "type": "string" },
+        {
+          "name": "topLinks",
+          "type": "json",
+          "notNull": true,
+          "defaultValue": "[]"
+        },
+        {
+          "name": "headLinks",
+          "type": "json",
+          "notNull": true,
+          "defaultValue": "[]"
+        },
+        { "name": "description", "type": "text" },
+        { "name": "forbidContents", "type": "multiple" },
+        { "name": "visible", "type": "bool" },
+        { "name": "auth", "type": "json" }
+      ]
+    },
+    {
+      "name": "threads",
+      "columns": [
+        { "name": "title", "type": "string" },
+        { "name": "name", "type": "string" },
+        { "name": "content", "type": "text" },
+        { "name": "image", "type": "file", "public": true },
+        { "name": "imageToken", "type": "string" },
+        { "name": "youtubeID", "type": "string" },
+        { "name": "replyAt", "type": "datetime" }
+      ]
+    },
+    {
+      "name": "replies",
+      "columns": [
+        { "name": "name", "type": "string" },
+        { "name": "content", "type": "text" },
+        { "name": "image", "type": "file", "public": true },
+        { "name": "imageToken", "type": "string" },
+        { "name": "youtubeID", "type": "string" },
+        { "name": "sage", "type": "bool" },
+        { "name": "thread", "type": "link", "link": { "table": "threads" } }
+      ]
+    },
+    {
+      "name": "reports",
+      "columns": [
+        { "name": "reason", "type": "string" },
+        { "name": "content", "type": "text" },
+        { "name": "thread", "type": "link", "link": { "table": "threads" } },
+        { "name": "reply", "type": "link", "link": { "table": "replies" } }
+      ]
+    }
+  ]
+}

@@ -1,26 +1,19 @@
 // Interfaces
-export interface IThread {
-  id: string;
-  userId: string;
-  title: string;
-  name: string;
-  content: string;
-  imageToken: string;
-  youtubeID: string | null;
-  createdAt: Date;
-  replyAt: Date;
-  serviceId: string;
-  replies: IReply[];
-}
+import { XataRecord } from '@xata.io/client';
 
-export interface IReply {
-  id: string;
-  userId: string;
-  name: string;
-  content: string;
-  imageToken: string;
-  youtubeID: string | null;
-  sage: boolean;
-  createdAt: Date;
-  threadId: string;
-}
+import { ThreadsRecord, RepliesRecord } from '../xata/xata';
+
+type WithoutImage<T> = Omit<T, 'image'>;
+
+export type ThreadWithReplies = WithoutImage<ThreadsRecord> &
+  XataRecord & {
+    image?: string;
+    replies: (WithoutImage<RepliesRecord> & {
+      image?: string;
+    })[];
+  };
+
+export type IReply = WithoutImage<RepliesRecord> &
+  XataRecord & {
+    image?: string;
+  };

@@ -1,6 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+
 import {
   Card,
   CardContent,
@@ -10,13 +14,12 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { IThread, IReply } from '@/lib/types/thread';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { IReply } from '@/lib/types/thread';
+import { ThreadWithReplies } from '@/lib/types/thread';
 
 interface ThreadComponentProps {
-  thread: IThread;
+  serviceId: string;
+  thread: ThreadWithReplies;
   isPreview: boolean;
 }
 
@@ -98,16 +101,17 @@ const PostMeta: React.FC<{
 const ReplyComponent: React.FC<{ reply: IReply }> = ({ reply }) => (
   <div className="mt-4">
     <PostMeta
-      name={reply.name}
-      userId={reply.userId}
-      createdAt={reply.createdAt}
+      name={reply.name || ''}
+      // userId={reply.userId}
+      userId=""
+      createdAt={reply.xata.createdAt}
       id={reply.id}
     />
     <div className="mt-2">
       <PostComponent
-        imageToken={reply.imageToken}
-        content={reply.content}
-        youtubeID={reply.youtubeID}
+        imageToken={reply.imageToken || reply.image || ''}
+        content={reply.content || ''}
+        youtubeID={reply.youtubeID || ''}
       />
     </div>
   </div>
@@ -116,6 +120,7 @@ const ReplyComponent: React.FC<{ reply: IReply }> = ({ reply }) => (
 const ThreadComponent: React.FC<ThreadComponentProps> = ({
   thread,
   isPreview,
+  serviceId,
 }) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
   const router = useRouter();
@@ -127,7 +132,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
 
   const handleTitleClick = () => {
     if (isPreview) {
-      router.push(`/service/${thread.serviceId}/${thread.id}`);
+      router.push(`/service/${serviceId}/${thread.id}`);
     }
   };
 
@@ -144,17 +149,18 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           {thread.title}
         </CardTitle>
         <PostMeta
-          name={thread.name}
-          userId={thread.userId}
-          createdAt={thread.createdAt}
+          name={thread.name || ''}
+          // userId={thread.userId}
+          userId=""
+          createdAt={thread.xata.createdAt}
           id={thread.id}
         />
       </CardHeader>
       <CardContent className="pt-3">
         <PostComponent
-          content={thread.content}
-          imageToken={thread.imageToken}
-          youtubeID={thread.youtubeID}
+          content={thread.content || ''}
+          imageToken={thread.imageToken || thread.image || ''} // imageToken是legacy的輸入值
+          youtubeID={thread.youtubeID || ''}
         />
       </CardContent>
       {thread.replies.length > 0 && (
@@ -182,7 +188,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
             {visibleReplies.map((reply, index) => (
               <React.Fragment key={reply.id}>
                 {index > 0 && <Separator />}
-                <ReplyComponent reply={reply} />
+                {/* <ReplyComponent reply={reply} /> */}
               </React.Fragment>
             ))}
           </div>
