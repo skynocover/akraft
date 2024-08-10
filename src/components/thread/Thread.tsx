@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import remarkGfm from 'remark-gfm';
 
 interface ThreadComponentProps {
   thread: IThread;
+  isPreview: boolean;
 }
 
 const PostContent: React.FC<{ content: string }> = ({ content }) => (
@@ -111,17 +113,34 @@ const ReplyComponent: React.FC<{ reply: IReply }> = ({ reply }) => (
   </div>
 );
 
-const ThreadComponent: React.FC<ThreadComponentProps> = ({ thread }) => {
+const ThreadComponent: React.FC<ThreadComponentProps> = ({
+  thread,
+  isPreview,
+}) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
+  const router = useRouter();
   const visibleRepliesNum = 2;
-  const visibleReplies = showAllReplies
-    ? thread.replies
-    : thread.replies.slice(-visibleRepliesNum);
+  const visibleReplies =
+    isPreview && !showAllReplies
+      ? thread.replies.slice(-visibleRepliesNum)
+      : thread.replies;
+
+  const handleTitleClick = () => {
+    if (isPreview) {
+      router.push(`/service/${thread.serviceId}/${thread.id}`);
+    }
+  };
 
   return (
     <Card className="mb-6 overflow-hidden">
       <CardHeader className="pb-3">
-        <CardTitle className="text-2xl font-bold text-center mb-2">
+        <CardTitle
+          className={`text-2xl font-bold text-center mb-2 ${
+            isPreview ? 'cursor-pointer hover:underline' : ''
+          }`}
+          onClick={handleTitleClick}
+          title={isPreview ? 'Click to view full thread' : ''}
+        >
           {thread.title}
         </CardTitle>
         <PostMeta
@@ -141,7 +160,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({ thread }) => {
       {thread.replies.length > 0 && (
         <CardFooter className="flex flex-col pt-4">
           <Separator className="mb-4" />
-          {thread.replies.length > visibleRepliesNum && (
+          {isPreview && thread.replies.length > visibleRepliesNum && (
             <Button
               variant="outline"
               onClick={() => setShowAllReplies(!showAllReplies)}
