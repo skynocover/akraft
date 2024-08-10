@@ -1,0 +1,16 @@
+{
+  "id": "mig_cqr4frp23gl4evovvctg",
+  "parentID": "mig_cqr4e7123gl4evovvcsg",
+  "checksum": "1:6cf5da69e8e4557fbb88147f58c877dd143f64192bb107fb7451daf5d2e29fd5",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "ownerId",
+          "type": "text"
+        },
+        "table": "services"
+      }
+    }
+  ]
+}

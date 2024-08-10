@@ -1,0 +1,16 @@
+{
+  "id": "mig_cqr4dt923gl4evovvcrg",
+  "parentID": "mig_cqr4dqp23gl4evovvcqg",
+  "checksum": "1:b906ccb6bdf372e26aeb5f53cdff5896d125c72bc6cb14f6b4d0c79e1f2d631a",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "headlinks",
+          "type": "multiple"
+        },
+        "table": "services"
+      }
+    }
+  ]
+}

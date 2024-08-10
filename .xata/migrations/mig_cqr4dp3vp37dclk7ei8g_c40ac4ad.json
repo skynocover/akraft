@@ -1,0 +1,16 @@
+{
+  "id": "mig_cqr4dp3vp37dclk7ei8g",
+  "parentID": "mig_cqr4cr923gl4evovvcpg",
+  "checksum": "1:c40ac4ad30600942386f8f61cf3f8b113d4d61b35f3752608cbef81f22ef1e37",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "toplink",
+          "type": "multiple"
+        },
+        "table": "services"
+      }
+    }
+  ]
+}

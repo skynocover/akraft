@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://EricWu-s-workspace-2lkpjt.eu-central-1.xata.sh/db/akraft",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}

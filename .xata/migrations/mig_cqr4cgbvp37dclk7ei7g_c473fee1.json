@@ -1,0 +1,13 @@
+{
+  "id": "mig_cqr4cgbvp37dclk7ei7g",
+  "parentID": "mig_cqr4bth23gl4evovvcog",
+  "checksum": "1:c473fee186f35b04f01fddd97bccea8ef6840f8577e7898aedd6b5984fafa74d",
+  "operations": [
+    {
+      "renameTable": {
+        "newName": "services",
+        "oldName": "service"
+      }
+    }
+  ]
+}
