@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { validatePostInput } from '@/lib/utils/threads';
+import { validatePostInput, PostInput } from '@/lib/utils/threads';
 
 interface PostCardProps {
   description: string;
@@ -36,7 +36,13 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      if (!selectedFile.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      setFile(selectedFile);
+      setError(null);
     }
   };
 
@@ -46,14 +52,16 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
     setIsLoading(true);
 
     try {
-      validatePostInput({
+      const postInput: PostInput = {
         serviceId,
         title,
         name,
         content: markdownInfo,
         youtubeLink,
         image: file,
-      });
+      };
+
+      validatePostInput(postInput);
 
       const formData = new FormData();
       formData.append('title', title);
@@ -178,7 +186,7 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
                 >
                   <Upload className="w-8 h-8 text-gray-400 mb-2" />
                   <p className="text-xs text-gray-500">
-                    {file ? file.name : 'Click or drag to upload'}
+                    {file ? file.name : 'Click or drag to upload image'}
                   </p>
                   <input
                     id="dropzone-file"
@@ -186,6 +194,7 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
                     className="hidden"
                     onChange={handleFileChange}
                     disabled={isLoading}
+                    accept="image/*"
                   />
                 </label>
               </div>

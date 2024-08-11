@@ -31,6 +31,10 @@ export function validatePostInput(input: PostInput) {
     );
   }
 
+  if (input.image && !input.image.type.startsWith('image/')) {
+    throw new Error('Only accept image');
+  }
+
   if (youtubeLinkFilled) {
     const youtubeIdRegex = /^[a-zA-Z0-9_-]{11}$/;
     const extractedId = extractYouTubeVideoId(input.youtubeLink!);

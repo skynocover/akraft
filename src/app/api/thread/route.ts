@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
             name: encodeURIComponent(image.name),
             mediaType: image.type,
             base64Content: await fileToBase64(image),
+            enablePublicUrl: true,
           }
         : undefined,
       replyAt: new Date(),
