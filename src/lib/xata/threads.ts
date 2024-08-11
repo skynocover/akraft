@@ -67,6 +67,8 @@ export const getThreads = async ({
         const transformedReplies = replies.map((reply) => ({
           ...reply,
           image: reply.image?.url,
+          threadId: reply.thread?.id || '', //TODO: SSR沒辦法傳遞多層JSON
+          thread: undefined,
         }));
 
         return {
@@ -125,6 +127,8 @@ export const getThread = async ({
       replies: replies.map((reply) => ({
         ...reply,
         image: reply.image?.url,
+        threadId: reply.thread?.id || '', //TODO: SSR沒辦法傳遞多層json
+        thread: undefined,
       })),
     };
 

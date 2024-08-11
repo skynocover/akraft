@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import {
   Card,
@@ -17,6 +19,8 @@ import { Separator } from '@/components/ui/separator';
 import { IReply, ThreadWithReplies } from '@/lib/types/thread';
 import { Image } from './Image';
 import PostCard from './PostCard';
+
+dayjs.extend(localizedFormat);
 
 interface ThreadComponentProps {
   serviceId: string;
@@ -92,7 +96,7 @@ const PostMeta: React.FC<{
     <span className="font-semibold text-gray-700">{name}</span>
     <span>ID: {userId}</span>
     <span className="ml-auto">
-      {createdAt.toLocaleString()} No: {id}
+      {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No: {id}
     </span>
   </div>
 );

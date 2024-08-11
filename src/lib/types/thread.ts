@@ -10,6 +10,7 @@ export type ThreadWithReplies = WithoutImage<ThreadsRecord> &
     image?: string;
     replies: (WithoutImage<RepliesRecord> & {
       image?: string;
+      threadId: string;
     })[];
   };
 
