@@ -10,10 +10,10 @@ interface TitleProps {
 export default function Title({ title, links }: TitleProps) {
   return (
     <>
-      <h1 className="text-3xl font-bold text-center mb-2 mt-8 text-black">
+      <h1 className="text-3xl font-bold text-center mb-2 mt-6 text-black">
         {title}
       </h1>
-      <div className="flex justify-center mb-4 space-x-2">
+      <div className="flex justify-center mb-2 space-x-2">
         {links.map((link, index) => (
           <Link
             key={index}

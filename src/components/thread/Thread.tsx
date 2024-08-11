@@ -102,8 +102,7 @@ const ReplyComponent: React.FC<{ reply: IReply }> = ({ reply }) => (
   <div className="mt-4">
     <PostMeta
       name={reply.name || ''}
-      // userId={reply.userId}
-      userId=""
+      userId={reply.userId || ''}
       createdAt={reply.xata.createdAt}
       id={reply.id}
     />
@@ -150,8 +149,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
         </CardTitle>
         <PostMeta
           name={thread.name || ''}
-          // userId={thread.userId}
-          userId=""
+          userId={thread.userId || ''}
           createdAt={thread.xata.createdAt}
           id={thread.id}
         />

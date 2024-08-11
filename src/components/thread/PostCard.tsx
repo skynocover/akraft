@@ -1,15 +1,18 @@
 'use client';
 import React, { useState } from 'react';
-import { Upload, Link, Eye, EyeOff } from 'lucide-react';
+import { Upload, Link, Eye, EyeOff, Loader } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { validatePostInput } from '@/lib/utils/threads';
 
 interface PostCardProps {
   description: string;
@@ -23,6 +26,9 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
   const [isPreview, setIsPreview] = useState(false);
   const [youtubeLink, setYoutubeLink] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdownInfo(e.target.value);
@@ -36,66 +42,79 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const contentFilled = markdownInfo.trim() !== '';
-
-    if (!youtubeLink?.trim() && !file && !contentFilled) {
-      alert(
-        'YouTube Link, Image, and Content cannot all be empty. Please fill at least one.',
-      );
-      return;
-    }
-
-    if (youtubeLink?.trim() && file) {
-      alert('You can only fill either YouTube Link or Image, not both.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('name', name);
-    formData.append('content', markdownInfo);
-    formData.append('serviceId', serviceId);
-
-    if (youtubeLink?.trim()) {
-      formData.append('youtubeID', youtubeLink.trim());
-    }
-
-    if (file) {
-      formData.append('image', file);
-    }
+    setError(null);
+    setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/thread', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      validatePostInput({
+        serviceId,
+        title,
+        name,
+        content: markdownInfo,
+        youtubeLink,
+        image: file,
       });
-      console.log('Submitted Data:', response.data);
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('name', name);
+      formData.append('content', markdownInfo);
+      formData.append('serviceId', serviceId);
+
+      if (youtubeLink?.trim()) {
+        formData.append('youtubeLink', youtubeLink.trim());
+      }
+
+      if (file) {
+        formData.append('image', file);
+      }
+
+      const response = await axios.post('/api/thread', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      // Reset form fields
+      setTitle('');
+      setName('');
+      setMarkdownInfo('');
+      setYoutubeLink('');
+      setFile(null);
+
+      // Refresh the page
+      router.refresh();
     } catch (error) {
       console.error('Submission error:', error);
+      setError(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Card className="mb-4 shadow-md">
-      <CardContent className="p-4 relative">
+      <CardContent className="p-3 relative">
         <form className="space-y-2" onSubmit={handleSubmit}>
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Post</h2>
-          </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
           <Input
             placeholder="Title"
             className="text-base"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            disabled={isLoading}
           />
           <Input
             placeholder="Name"
             className="text-base"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
           />
 
           <div className="relative">
@@ -104,6 +123,7 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
               variant="ghost"
               onClick={() => setIsPreview((prev) => !prev)}
               className="absolute top-2 right-2 z-10 flex items-center"
+              disabled={isLoading}
             >
               {isPreview ? (
                 <EyeOff className="w-4 h-4 m-2" />
@@ -114,7 +134,7 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
 
             {isPreview ? (
               <Markdown
-                className="text-sm p-3 whitespace-pre-wrap border"
+                className="text-sm p-3 whitespace-pre-wrap border min-h-40"
                 remarkPlugins={[remarkGfm]}
               >
                 {markdownInfo}
@@ -125,14 +145,19 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
                 className="h-40 text-sm border"
                 value={markdownInfo}
                 onChange={handleContentChange}
+                disabled={isLoading}
               />
             )}
           </div>
 
           <Tabs defaultValue="image">
             <TabsList className="grid grid-cols-2">
-              <TabsTrigger value="image">Upload</TabsTrigger>
-              <TabsTrigger value="youtube">YouTube</TabsTrigger>
+              <TabsTrigger value="image" disabled={isLoading}>
+                Upload
+              </TabsTrigger>
+              <TabsTrigger value="youtube" disabled={isLoading}>
+                YouTube
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="youtube">
               <div className="flex items-center">
@@ -141,6 +166,7 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
                   placeholder="YouTube Link"
                   value={youtubeLink}
                   onChange={(e) => setYoutubeLink(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
             </TabsContent>
@@ -159,6 +185,7 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
                     type="file"
                     className="hidden"
                     onChange={handleFileChange}
+                    disabled={isLoading}
                   />
                 </label>
               </div>
@@ -174,8 +201,16 @@ export default function PostCard({ description, serviceId }: PostCardProps) {
           <Button
             type="submit"
             className="w-full bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200"
+            disabled={isLoading}
           >
-            Submit
+            {isLoading ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              'Submit'
+            )}
           </Button>
         </form>
       </CardContent>

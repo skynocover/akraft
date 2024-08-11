@@ -28,10 +28,12 @@
         { "name": "title", "type": "string" },
         { "name": "name", "type": "string" },
         { "name": "content", "type": "text" },
-        { "name": "image", "type": "file", "public": true },
+        { "name": "image", "type": "file" },
         { "name": "imageToken", "type": "string" },
         { "name": "youtubeID", "type": "string" },
-        { "name": "replyAt", "type": "datetime" }
+        { "name": "replyAt", "type": "datetime" },
+        { "name": "userId", "type": "string" },
+        { "name": "userIp", "type": "string" }
       ]
     },
     {
@@ -39,11 +41,13 @@
       "columns": [
         { "name": "name", "type": "string" },
         { "name": "content", "type": "text" },
-        { "name": "image", "type": "file", "public": true },
+        { "name": "image", "type": "file" },
         { "name": "imageToken", "type": "string" },
         { "name": "youtubeID", "type": "string" },
         { "name": "sage", "type": "bool" },
-        { "name": "thread", "type": "link", "link": { "table": "threads" } }
+        { "name": "thread", "type": "link", "link": { "table": "threads" } },
+        { "name": "userId", "type": "string" },
+        { "name": "userIp", "type": "string" }
       ]
     },
     {
@@ -52,7 +56,8 @@
         { "name": "reason", "type": "string" },
         { "name": "content", "type": "text" },
         { "name": "thread", "type": "link", "link": { "table": "threads" } },
-        { "name": "reply", "type": "link", "link": { "table": "replies" } }
+        { "name": "reply", "type": "link", "link": { "table": "replies" } },
+        { "name": "userIp", "type": "string" }
       ]
     }
   ]

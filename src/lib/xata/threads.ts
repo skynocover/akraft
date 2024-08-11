@@ -30,10 +30,8 @@ export const getThreads = async (
       apiKey: process.env.XATA_API_KEY,
     });
 
-    // Fetch all threads
-    const threads = await xata.db.threads.getAll();
+    const threads = await xata.db.threads.sort('replyAt', 'desc').getAll();
 
-    // Fetch related replies for each thread and transform the data
     const threadsWithReplies: ThreadWithReplies[] = await Promise.all(
       threads.map(async (thread) => {
         const replies = await xata.db.replies
