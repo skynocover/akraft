@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
     });
 
     const thread = await xata.db.threads.create({
-      title: title || 'Untitled',
-      name: name || 'anonymous',
+      title: title.trim() || 'Untitled',
+      name: name.trim() || 'anonymous',
       content,
       youtubeID: youtubeLink ? extractYouTubeVideoId(youtubeLink) : undefined,
       image: image
