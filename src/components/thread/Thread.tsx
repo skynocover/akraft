@@ -1,11 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, MessageCircle, Flag } from 'lucide-react';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import axios from 'axios';
 
 import {
   Card,
@@ -19,6 +20,15 @@ import { Separator } from '@/components/ui/separator';
 import { IReply, ThreadWithReplies } from '@/lib/types/thread';
 import { Image } from './Image';
 import PostCard from './PostCard';
+import { Textarea } from '@/components/ui/textarea';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 dayjs.extend(localizedFormat);
 
@@ -27,6 +37,51 @@ interface ThreadComponentProps {
   thread: ThreadWithReplies;
   isPreview: boolean;
 }
+
+interface ReportModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onReport: (reason: string) => void;
+}
+
+const ReportModal: React.FC<ReportModalProps> = ({
+  isOpen,
+  onClose,
+  onReport,
+}) => {
+  const [reportReason, setReportReason] = useState<string>('');
+
+  const handleReport = () => {
+    onReport(reportReason);
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Report Post</DialogTitle>
+        </DialogHeader>
+        <Textarea
+          placeholder="Enter reason for reporting"
+          value={reportReason}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setReportReason(e.target.value)
+          }
+          className="min-h-[100px]"
+        />
+        <DialogFooter>
+          <Button onClick={onClose} variant="outline">
+            Cancel
+          </Button>
+          <Button onClick={handleReport} disabled={!reportReason}>
+            Report
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const PostContent: React.FC<{ content: string }> = ({ content }) => (
   <ReactMarkdown
@@ -91,23 +146,46 @@ const PostMeta: React.FC<{
   userId: string;
   createdAt: Date;
   id: string;
-}> = ({ name, userId, createdAt, id }) => (
-  <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-    <span className="font-semibold text-gray-700">{name}</span>
-    <span>ID: {userId}</span>
-    <span className="ml-auto">
-      {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No: {id}
-    </span>
-  </div>
-);
+  onReport: (id: string) => void;
+}> = ({ name, userId, createdAt, id, onReport }) => {
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
 
-const ReplyComponent: React.FC<{ reply: IReply }> = ({ reply }) => (
-  <div className="mt-4">
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+      <span className="font-semibold text-gray-700">{name}</span>
+      <span>ID: {userId}</span>
+      <span className="ml-auto flex items-center">
+        {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No: {id}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-2 h-6 w-6"
+          onClick={() => setIsReportModalOpen(true)}
+          title="Report this post"
+        >
+          <Flag className="h-4 w-4" />
+        </Button>
+      </span>
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onReport={() => onReport(id)}
+      />
+    </div>
+  );
+};
+
+const ReplyComponent: React.FC<{
+  reply: IReply;
+  onReport: (id: string) => void;
+}> = ({ reply, onReport }) => (
+  <div>
     <PostMeta
       name={reply.name || ''}
       userId={reply.userId || ''}
       createdAt={reply.xata.createdAt}
       id={reply.id}
+      onReport={onReport}
     />
     <div className="mt-2">
       <PostComponent
@@ -126,6 +204,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
 }) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
   const [showReplyModal, setShowReplyModal] = useState(false);
+  const [highlightedId, setHighlightedId] = useState<string>();
 
   const router = useRouter();
   const visibleRepliesNum = 7;
@@ -140,8 +219,36 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
     }
   };
 
+  const onReport = async (id: string) => {
+    try {
+      await axios.post('/api/report', { id, serviceId });
+      console.log('Successfully reported post:', id);
+    } catch (error) {
+      // 處理錯誤
+      console.error('Failed to report post:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      if (hash) {
+        setHighlightedId(hash.substring(1));
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+  }, []);
+
   return (
-    <Card className="mb-6 overflow-hidden">
+    <Card
+      id={thread.id}
+      className={`mb-6 overflow-hidden scroll-mt-20 transition-all duration-300 ${
+        highlightedId === thread.id ? 'ring-2 ring-blue-100 bg-blue-50' : ''
+      }`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-center">
           <CardTitle
@@ -168,6 +275,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           userId={thread.userId || ''}
           createdAt={thread.xata.createdAt}
           id={thread.id}
+          onReport={onReport}
         />
       </CardHeader>
       <CardContent className="pt-3">
@@ -200,10 +308,17 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           )}
           <div className="space-y-4 w-full">
             {visibleReplies.map((reply, index) => (
-              <React.Fragment key={reply.id}>
+              <div
+                key={reply.id}
+                className={`mt-4 scroll-mt-20 ${
+                  highlightedId === `${reply.id}`
+                    ? 'ring-2 ring-blue-100 bg-blue-50'
+                    : ''
+                }`}
+              >
                 {index > 0 && <Separator />}
-                <ReplyComponent reply={reply} />
-              </React.Fragment>
+                <ReplyComponent reply={reply} onReport={onReport} />
+              </div>
             ))}
           </div>
         </CardFooter>
