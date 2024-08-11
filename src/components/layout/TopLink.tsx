@@ -28,7 +28,7 @@ export default function TopLink({ serviceId, links }: TopLinkProps) {
       ))}
       <a
         key={'manage link'}
-        href={`/service?serviceId=${serviceId}`}
+        href={`/dashboard/${serviceId}`}
         target="_blank"
         className="text-gray-400 hover:text-gray-600 flex items-center"
       >

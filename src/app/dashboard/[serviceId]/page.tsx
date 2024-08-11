@@ -6,15 +6,15 @@ import { getService } from '@/lib/xata/threads';
 import ServiceEditor from '@/components/service/serviceEditor';
 
 export default async function Page({
-  searchParams,
+  params,
 }: {
-  searchParams: { serviceId?: string };
+  params: { serviceId: string };
 }) {
-  if (!searchParams.serviceId) {
+  if (!params.serviceId) {
     return notFound();
   }
 
-  const service = await getService({ serviceId: searchParams.serviceId });
+  const service = await getService({ serviceId: params.serviceId });
 
   if (!service) {
     return notFound();
@@ -26,7 +26,7 @@ export default async function Page({
         Service Management
       </h1>
 
-      <ServiceEditor service={service} serviceId={searchParams.serviceId} />
+      <ServiceEditor service={service} serviceId={params.serviceId} />
     </div>
   );
 }
