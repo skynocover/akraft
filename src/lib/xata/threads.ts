@@ -21,16 +21,42 @@ export const getService = async ({
   }
 };
 
-export const getThreads = async (
-  serviceId: string,
-): Promise<ThreadWithReplies[]> => {
+interface IGetThreads {
+  serviceId: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export const getThreads = async ({
+  serviceId,
+  page = 1,
+  pageSize = 10,
+}: IGetThreads): Promise<{
+  threads: ThreadWithReplies[];
+  totalPages: number;
+  currentPage: number;
+}> => {
   try {
     const xata = new XataClient({
       branch: serviceId,
       apiKey: process.env.XATA_API_KEY,
     });
 
-    const threads = await xata.db.threads.sort('replyAt', 'desc').getAll();
+    const offset = (page - 1) * pageSize;
+
+    const [{ records: threads }, totalRecords] = await Promise.all([
+      xata.db.threads.sort('replyAt', 'desc').getPaginated({
+        pagination: {
+          size: pageSize,
+          offset: offset,
+        },
+      }),
+      xata.db.threads.aggregate({
+        totalRecords: {
+          count: '*',
+        },
+      }),
+    ]);
 
     const threadsWithReplies: ThreadWithReplies[] = await Promise.all(
       threads.map(async (thread) => {
@@ -51,10 +77,20 @@ export const getThreads = async (
       }),
     );
 
-    return threadsWithReplies;
+    const totalPages = Math.ceil(totalRecords.aggs.totalRecords / pageSize);
+
+    return {
+      threads: threadsWithReplies,
+      totalPages,
+      currentPage: page,
+    };
   } catch (error) {
     console.error(error);
-    return [];
+    return {
+      threads: [],
+      totalPages: 0,
+      currentPage: page,
+    };
   }
 };
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-
 import PostCard from '@/components/thread/PostCard';
 import TopLink from '@/components/layout/TopLink';
 import Title from '@/components/layout/Title';
@@ -10,15 +9,27 @@ import { getService, getThreads } from '@/lib/xata/threads';
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: { serviceId: string };
+  searchParams: { page?: string };
 }) {
-  const threads = await getThreads(params.serviceId);
+  const currentPage = searchParams.page ? parseInt(searchParams.page, 10) : 1;
+  const pageSize = 2;
+
+  const { threads, totalPages } = await getThreads({
+    serviceId: params.serviceId,
+    page: currentPage,
+    pageSize,
+  });
+
   const service = await getService({ serviceId: params.serviceId });
 
   if (!service) {
     return notFound();
   }
+
+  const baseUrl = `/service/${params.serviceId}`;
 
   return (
     <div className="container mx-auto p-6 max-w-4xl relative">
@@ -28,15 +39,24 @@ export default async function Page({
         serviceId={params.serviceId}
         description={service.description || ''}
       />
-      <Pagination totalPages={10} currentPage={1} baseUrl={''} />
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        baseUrl={baseUrl}
+      />
       {threads.map((thread) => (
         <ThreadComponent
+          key={thread.id}
           serviceId={params.serviceId}
           thread={thread}
           isPreview={true}
         />
       ))}
-      <Pagination totalPages={10} currentPage={1} baseUrl={''} />
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        baseUrl={baseUrl}
+      />
     </div>
   );
 }
