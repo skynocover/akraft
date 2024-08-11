@@ -1,15 +1,15 @@
 'use client';
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { LinkItem } from '@/lib/types/link';
+import { ServicesRecord } from '@/lib/xata/xata';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ServicesRecord } from '@/lib/xata/xata';
-import { useRouter } from 'next/navigation';
+import { Plus, Trash2, Save, X } from 'lucide-react';
 
 interface ServiceEditorProps {
   serviceId: string;
@@ -21,7 +21,6 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   service,
 }) => {
   const router = useRouter();
-
   const [editedService, setEditedService] = useState<ServicesRecord>(service);
 
   const handleInputChange = (
@@ -29,10 +28,6 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   ) => {
     const { name, value } = e.target;
     setEditedService({ ...editedService, [name]: value });
-  };
-
-  const handleCheckboxChange = (checked: boolean) => {
-    setEditedService({ ...editedService, visible: checked });
   };
 
   const handleLinkChange = (links: LinkItem[], key: keyof ServicesRecord) => {
@@ -57,113 +52,94 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   };
 
   return (
-    <div className="p-4 bg-white shadow rounded-lg max-w-2xl mx-auto">
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Service Name
-        </label>
+    <div className="p-6 bg-white shadow-lg rounded-xl max-w-3xl mx-auto">
+      <div className="space-y-6">
         <Input
           name="name"
           value={editedService.name || ''}
           onChange={handleInputChange}
-          className="mt-1 block w-full"
+          placeholder="Service Name"
+          className="text-xl font-semibold"
         />
-      </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Description
-        </label>
         <Textarea
           name="description"
           value={editedService.description || ''}
           onChange={handleInputChange}
-          className="mt-1 block w-full"
+          placeholder="Description"
+          className="min-h-[100px]"
         />
-      </div>
 
-      <Tabs defaultValue="topLinks">
-        <TabsList>
-          <TabsTrigger value="topLinks">Top Links</TabsTrigger>
-          <TabsTrigger value="headLinks">Head Links</TabsTrigger>
-          <TabsTrigger value="forbidContents">Forbidden Contents</TabsTrigger>
-          <TabsTrigger value="auth">Auth</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="topLinks" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="topLinks">Top Links</TabsTrigger>
+            <TabsTrigger value="headLinks">Head Links</TabsTrigger>
+            <TabsTrigger value="forbidContents">Forbidden</TabsTrigger>
+            <TabsTrigger value="auth">Auth</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="topLinks">
-          <Card className="mt-4">
-            <CardContent>
-              <h2 className="text-lg font-medium mb-2">Top Links</h2>
-              <LinkEditor
-                links={editedService.topLinks || []}
-                onLinksChange={(links) => handleLinkChange(links, 'topLinks')}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="topLinks">
+            <Card>
+              <CardContent className="pt-6">
+                <LinkEditor
+                  links={editedService.topLinks || []}
+                  onLinksChange={(links) => handleLinkChange(links, 'topLinks')}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="headLinks">
-          <Card className="mt-4">
-            <CardContent>
-              <h2 className="text-lg font-medium mb-2">Head Links</h2>
-              <LinkEditor
-                links={editedService.headLinks || []}
-                onLinksChange={(links) => handleLinkChange(links, 'headLinks')}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="headLinks">
+            <Card>
+              <CardContent className="pt-6">
+                <LinkEditor
+                  links={editedService.headLinks || []}
+                  onLinksChange={(links) =>
+                    handleLinkChange(links, 'headLinks')
+                  }
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="forbidContents">
-          <Card className="mt-4">
-            <CardContent>
-              <h2 className="text-lg font-medium mb-2">Forbidden Contents</h2>
-              <ForbidContentsEditor
-                contents={editedService.forbidContents || []}
-                onContentsChange={handleForbidContentsChange}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="forbidContents">
+            <Card>
+              <CardContent className="pt-6">
+                <ForbidContentsEditor
+                  contents={editedService.forbidContents || []}
+                  onContentsChange={handleForbidContentsChange}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="auth">
-          <Card className="mt-4">
-            <CardContent>
-              <h2 className="text-lg font-medium mb-2">Auth Configuration</h2>
-              <Textarea
-                name="auth"
-                value={JSON.stringify(editedService.auth, null, 2) || ''}
-                onChange={(e) =>
-                  setEditedService({
-                    ...editedService,
-                    auth: JSON.parse(e.target.value),
-                  })
-                }
-                className="mt-1 block w-full"
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="auth">
+            <Card>
+              <CardContent className="pt-6">
+                <Textarea
+                  name="auth"
+                  value={JSON.stringify(editedService.auth, null, 2) || ''}
+                  onChange={(e) =>
+                    setEditedService({
+                      ...editedService,
+                      auth: JSON.parse(e.target.value),
+                    })
+                  }
+                  className="min-h-[200px] font-mono text-sm"
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
-      <div className="flex items-center space-x-4 mt-4">
-        {/* <label className="block text-sm font-medium text-gray-700">
-          Public Visible
-        </label>
-        <Checkbox
-          name="visible"
-          checked={isVisible}
-          onCheckedChange={(checked) =>
-            handleCheckboxChange(checked as boolean)
-          }
-        /> */}
-        <Button onClick={handleDelete} className="bg-red-500 text-white">
-          Delete
-        </Button>
-        <div className="flex-1" />
-        <Button onClick={handleSave} className="bg-blue-500 text-white">
-          Save
-        </Button>
+        <div className="flex justify-between items-center mt-8">
+          <Button onClick={handleDelete} variant="destructive" size="icon">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+          <Button onClick={handleSave} size="icon">
+            <Save className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -201,29 +177,32 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onLinksChange }) => {
   };
 
   return (
-    <div>
+    <div className="space-y-4">
       {localLinks.map((link, index) => (
-        <div key={index} className="mb-2 flex space-x-2">
+        <div key={index} className="flex items-center space-x-2">
           <Input
             value={link.name}
             onChange={(e) => handleLinkChange(index, 'name', e.target.value)}
             placeholder="Link Name"
+            className="flex-1"
           />
           <Input
             value={link.url}
             onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
             placeholder="Link URL"
+            className="flex-1"
           />
           <Button
             onClick={() => handleRemoveLink(index)}
-            className="bg-red-500 text-white"
+            size="icon"
+            variant="ghost"
           >
-            Remove
+            <X className="h-4 w-4" />
           </Button>
         </div>
       ))}
-      <Button onClick={handleAddLink} className="bg-green-500 text-white">
-        Add Link
+      <Button onClick={handleAddLink} variant="outline" className="w-full">
+        <Plus className="h-4 w-4 mr-2" /> Add Link
       </Button>
     </div>
   );
@@ -260,24 +239,26 @@ const ForbidContentsEditor: React.FC<ForbidContentsEditorProps> = ({
   };
 
   return (
-    <div>
+    <div className="space-y-4">
       {localContents.map((content, index) => (
-        <div key={index} className="mb-2 flex space-x-2">
+        <div key={index} className="flex items-center space-x-2">
           <Input
             value={content}
             onChange={(e) => handleContentChange(index, e.target.value)}
             placeholder="Forbidden Content"
+            className="flex-1"
           />
           <Button
             onClick={() => handleRemoveContent(index)}
-            className="bg-red-500 text-white"
+            size="icon"
+            variant="ghost"
           >
-            Remove
+            <X className="h-4 w-4" />
           </Button>
         </div>
       ))}
-      <Button onClick={handleAddContent} className="bg-green-500 text-white">
-        Add Forbidden Content
+      <Button onClick={handleAddContent} variant="outline" className="w-full">
+        <Plus className="h-4 w-4 mr-2" /> Add Forbidden Content
       </Button>
     </div>
   );
