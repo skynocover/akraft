@@ -22,8 +22,6 @@ const tables = [
   {
     name: "threads",
     columns: [
-      { name: "title", type: "string" },
-      { name: "name", type: "string" },
       { name: "content", type: "text" },
       { name: "image", type: "file" },
       { name: "imageToken", type: "string" },
@@ -31,6 +29,8 @@ const tables = [
       { name: "replyAt", type: "datetime" },
       { name: "userId", type: "string" },
       { name: "userIp", type: "string" },
+      { name: "title", type: "string", defaultValue: "Untitled" },
+      { name: "name", type: "string", defaultValue: "anonymous" },
     ],
     revLinks: [
       { column: "thread", table: "replies" },
@@ -40,7 +40,6 @@ const tables = [
   {
     name: "replies",
     columns: [
-      { name: "name", type: "string" },
       { name: "content", type: "text" },
       { name: "image", type: "file" },
       { name: "imageToken", type: "string" },
@@ -49,6 +48,7 @@ const tables = [
       { name: "thread", type: "link", link: { table: "threads" } },
       { name: "userId", type: "string" },
       { name: "userIp", type: "string" },
+      { name: "name", type: "string", defaultValue: "anonymous" },
     ],
     revLinks: [{ column: "reply", table: "reports" }],
   },
