@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
 
 import {
   Card,
@@ -14,8 +14,9 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { IReply } from '@/lib/types/thread';
-import { ThreadWithReplies } from '@/lib/types/thread';
+import { IReply, ThreadWithReplies } from '@/lib/types/thread';
+import { Image } from './Image';
+import PostCard from './PostCard';
 
 interface ThreadComponentProps {
   serviceId: string;
@@ -38,11 +39,9 @@ const MediaContent: React.FC<{
 }> = ({ imageToken, youtubeID }) => {
   if (imageToken) {
     return (
-      <img
-        src={`${imageToken}`}
-        alt="Thread image"
-        className="rounded-lg w-full h-auto object-cover"
-      />
+      <div>
+        <Image imageURL={imageToken} />
+      </div>
     );
   }
   if (youtubeID) {
@@ -122,8 +121,10 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
   serviceId,
 }) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
+  const [showReplyModal, setShowReplyModal] = useState(false);
+
   const router = useRouter();
-  const visibleRepliesNum = 2;
+  const visibleRepliesNum = 7;
   const visibleReplies =
     isPreview && !showAllReplies
       ? thread.replies.slice(-visibleRepliesNum)
@@ -138,15 +139,26 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
   return (
     <Card className="mb-6 overflow-hidden">
       <CardHeader className="pb-3">
-        <CardTitle
-          className={`text-2xl font-bold text-center mb-2 ${
-            isPreview ? 'cursor-pointer hover:underline' : ''
-          }`}
-          onClick={handleTitleClick}
-          title={isPreview ? 'Click to view full thread' : ''}
-        >
-          {thread.title}
-        </CardTitle>
+        <div className="flex items-center justify-center">
+          <CardTitle
+            className={`text-2xl font-bold text-center ${
+              isPreview ? 'cursor-pointer hover:underline' : ''
+            }`}
+            onClick={handleTitleClick}
+            title={isPreview ? 'Click to view full thread' : ''}
+          >
+            {thread.title}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mb-1"
+            onClick={() => setShowReplyModal(true)}
+          >
+            <MessageCircle className="h-5 w-5" />
+          </Button>
+        </div>
+
         <PostMeta
           name={thread.name || ''}
           userId={thread.userId || ''}
@@ -157,7 +169,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
       <CardContent className="pt-3">
         <PostComponent
           content={thread.content || ''}
-          imageToken={thread.imageToken || thread.image || ''} // imageToken是legacy的輸入值
+          imageToken={thread.imageToken || thread.image || ''}
           youtubeID={thread.youtubeID || ''}
         />
       </CardContent>
@@ -186,11 +198,24 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
             {visibleReplies.map((reply, index) => (
               <React.Fragment key={reply.id}>
                 {index > 0 && <Separator />}
-                {/* <ReplyComponent reply={reply} /> */}
+                <ReplyComponent reply={reply} />
               </React.Fragment>
             ))}
           </div>
         </CardFooter>
+      )}
+
+      {showReplyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="w-full max-w-md">
+            <PostCard
+              serviceId={serviceId}
+              threadId={thread.id}
+              isReply={true}
+              onClose={() => setShowReplyModal(false)}
+            />
+          </div>
+        </div>
       )}
     </Card>
   );

@@ -15,7 +15,7 @@ export default async function Page({
   searchParams: { page?: string };
 }) {
   const currentPage = searchParams.page ? parseInt(searchParams.page, 10) : 1;
-  const pageSize = 2;
+  const pageSize = 10;
 
   const { threads, totalPages } = await getThreads({
     serviceId: params.serviceId,

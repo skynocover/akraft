@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Upload, Link, Eye, EyeOff, Loader, X } from 'lucide-react';
+import { Upload, Link, Eye, EyeOff, Loader } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios from 'axios';
@@ -12,24 +12,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Checkbox } from '@/components/ui/checkbox';
-import { validatePostInput, PostInput } from '@/lib/utils/threads';
 
-interface PostCardProps {
+interface PostReplyFormProps {
   description?: string;
   serviceId: string;
   threadId?: string;
   isReply?: boolean;
-  onClose?: () => void;
 }
 
-export default function PostCard({
+export default function PostReplyForm({
   description,
   serviceId,
   threadId,
   isReply = false,
-  onClose,
-}: PostCardProps) {
+}: PostReplyFormProps) {
   const [markdownInfo, setMarkdownInfo] = useState('');
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
@@ -38,7 +34,6 @@ export default function PostCard({
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSage, setIsSage] = useState(false);
   const router = useRouter();
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -64,35 +59,11 @@ export default function PostCard({
 
     try {
       const formData = new FormData();
+      if (!isReply) formData.append('title', title);
       formData.append('name', name);
       formData.append('content', markdownInfo);
       formData.append('serviceId', serviceId);
-
-      if (isReply) {
-        if (!threadId) throw new Error('Thread ID is required for replies');
-        const replyInput: PostInput = {
-          threadId,
-          serviceId,
-          name,
-          content: markdownInfo,
-          youtubeLink,
-          image: file,
-        };
-        validatePostInput(replyInput);
-        formData.append('threadId', threadId);
-        formData.append('sage', isSage.toString());
-      } else {
-        const postInput: PostInput = {
-          serviceId,
-          title,
-          name,
-          content: markdownInfo,
-          youtubeLink,
-          image: file,
-        };
-        validatePostInput(postInput);
-        formData.append('title', title);
-      }
+      if (isReply && threadId) formData.append('threadId', threadId);
 
       if (youtubeLink?.trim()) {
         formData.append('youtubeLink', youtubeLink.trim());
@@ -102,7 +73,8 @@ export default function PostCard({
         formData.append('image', file);
       }
 
-      await axios.post(isReply ? '/api/reply' : '/api/thread', formData, {
+      const endpoint = isReply ? '/api/reply' : '/api/thread';
+      await axios.post(endpoint, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -113,10 +85,7 @@ export default function PostCard({
       setYoutubeLink('');
       setFile(null);
 
-      // Close modal if it's a reply, otherwise refresh the page
-      if (isReply && onClose) {
-        onClose();
-      }
+      // Refresh the page
       router.refresh();
     } catch (error) {
       console.error('Submission error:', error);
@@ -129,39 +98,31 @@ export default function PostCard({
   };
 
   return (
-    <Card
-      className={`mb-4 shadow-md ${isReply ? 'w-full max-w-md mx-auto' : ''}`}
-    >
+    <Card className="mb-4 shadow-md">
       <CardContent className="p-3 relative">
-        {isReply && onClose && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="absolute top-2 right-2"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
         <form className="space-y-2" onSubmit={handleSubmit}>
-          <div className="flex space-x-2">
-            {!isReply && (
-              <Input
-                placeholder="Title"
-                className="text-base"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={isLoading}
-              />
-            )}
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {!isReply && (
             <Input
-              placeholder="Name"
+              placeholder="Title"
               className="text-base"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               disabled={isLoading}
             />
-          </div>
+          )}
+          <Input
+            placeholder="Name"
+            className="text-base"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
+          />
 
           <div className="relative">
             <Button
@@ -217,7 +178,7 @@ export default function PostCard({
               </div>
             </TabsContent>
             <TabsContent value="image">
-              <div className="flex items-center justify-center w-full h-28 border-2 border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
+              <div className="flex items-center justify-center w-full h-40 border-2 border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
                 <label
                   htmlFor="dropzone-file"
                   className="flex flex-col items-center justify-center w-full h-full"
@@ -239,7 +200,7 @@ export default function PostCard({
             </TabsContent>
           </Tabs>
 
-          {!isReply && description && (
+          {description && (
             <Markdown
               className="text-sm text-gray-500 whitespace-pre-wrap"
               remarkPlugins={[remarkGfm]}
@@ -247,46 +208,20 @@ export default function PostCard({
               {description}
             </Markdown>
           )}
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex">
-            <Button
-              type="submit"
-              className="w-full bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : isReply ? (
-                'Submit Reply'
-              ) : (
-                'Submit'
-              )}
-            </Button>
-            {isReply && (
-              <div className="flex items-center space-x-2 ml-2">
-                <Checkbox
-                  id="sage"
-                  checked={isSage}
-                  onCheckedChange={(checked) => setIsSage(checked as boolean)}
-                />
-                <label
-                  htmlFor="sage"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Sage
-                </label>
-              </div>
+          <Button
+            type="submit"
+            className="w-full bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              'Submit'
             )}
-          </div>
+          </Button>
         </form>
       </CardContent>
     </Card>

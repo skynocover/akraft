@@ -2,6 +2,7 @@ import crypto from 'crypto';
 
 export interface PostInput {
   serviceId?: string;
+  threadId?: string; //Reply才會有
   title?: string;
   name?: string;
   content?: string;

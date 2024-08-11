@@ -26,7 +26,7 @@ export default async function Page({
       <TopLink links={service.topLinks} />
       <Title title={service.name || ''} links={service.headLinks} />
       <ThreadComponent
-        serviceId={params.threadId}
+        serviceId={params.serviceId}
         thread={thread}
         isPreview={false}
       />
