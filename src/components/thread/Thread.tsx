@@ -3,10 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ChevronDown, ChevronUp, MessageCircle, Flag } from 'lucide-react';
+import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-import axios from 'axios';
 
 import {
   Card,
@@ -17,18 +16,10 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { IReply, ThreadWithReplies } from '@/lib/types/thread';
+import { ThreadWithReplies } from '@/lib/types/thread';
 import { Image } from './Image';
 import PostCard from './PostCard';
-import { Textarea } from '@/components/ui/textarea';
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { ReportButton } from './Report';
 
 dayjs.extend(localizedFormat);
 
@@ -37,51 +28,6 @@ interface ThreadComponentProps {
   thread: ThreadWithReplies;
   isPreview: boolean;
 }
-
-interface ReportModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onReport: (reason: string) => void;
-}
-
-const ReportModal: React.FC<ReportModalProps> = ({
-  isOpen,
-  onClose,
-  onReport,
-}) => {
-  const [reportReason, setReportReason] = useState<string>('');
-
-  const handleReport = () => {
-    onReport(reportReason);
-    onClose();
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Report Post</DialogTitle>
-        </DialogHeader>
-        <Textarea
-          placeholder="Enter reason for reporting"
-          value={reportReason}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            setReportReason(e.target.value)
-          }
-          className="min-h-[100px]"
-        />
-        <DialogFooter>
-          <Button onClick={onClose} variant="outline">
-            Cancel
-          </Button>
-          <Button onClick={handleReport} disabled={!reportReason}>
-            Report
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 const PostContent: React.FC<{ content: string }> = ({ content }) => (
   <ReactMarkdown
@@ -93,13 +39,13 @@ const PostContent: React.FC<{ content: string }> = ({ content }) => (
 );
 
 const MediaContent: React.FC<{
-  imageToken: string | null;
+  imageURL: string | null;
   youtubeID: string | null;
-}> = ({ imageToken, youtubeID }) => {
-  if (imageToken) {
+}> = ({ imageURL, youtubeID }) => {
+  if (imageURL) {
     return (
       <div>
-        <Image imageURL={imageToken} />
+        <Image imageURL={imageURL} />
       </div>
     );
   }
@@ -119,15 +65,15 @@ const MediaContent: React.FC<{
 };
 
 const PostComponent: React.FC<{
-  imageToken: string | null;
+  imageURL: string | null;
   youtubeID: string | null;
   content: string;
-}> = ({ imageToken, youtubeID, content }) => (
+}> = ({ imageURL, youtubeID, content }) => (
   <div className="flex flex-col md:flex-row md:space-x-4">
-    {imageToken || youtubeID ? (
+    {imageURL || youtubeID ? (
       <>
         <div className="w-full md:w-1/2 mb-4 md:mb-0">
-          <MediaContent imageToken={imageToken} youtubeID={youtubeID} />
+          <MediaContent imageURL={imageURL} youtubeID={youtubeID} />
         </div>
         <div className="w-full md:w-1/2">
           <PostContent content={content} />
@@ -146,56 +92,19 @@ const PostMeta: React.FC<{
   userId: string;
   createdAt: Date;
   id: string;
-  onReport: (id: string) => void;
-}> = ({ name, userId, createdAt, id, onReport }) => {
-  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
-
+  serviceId: string;
+}> = ({ name, userId, createdAt, id, serviceId }) => {
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
       <span className="font-semibold text-gray-700">{name}</span>
       <span>ID: {userId}</span>
       <span className="ml-auto flex items-center">
         {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No: {id}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-2 h-6 w-6"
-          onClick={() => setIsReportModalOpen(true)}
-          title="Report this post"
-        >
-          <Flag className="h-4 w-4" />
-        </Button>
+        <ReportButton serviceId={serviceId} />
       </span>
-      <ReportModal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-        onReport={() => onReport(id)}
-      />
     </div>
   );
 };
-
-const ReplyComponent: React.FC<{
-  reply: IReply;
-  onReport: (id: string) => void;
-}> = ({ reply, onReport }) => (
-  <div>
-    <PostMeta
-      name={reply.name || ''}
-      userId={reply.userId || ''}
-      createdAt={reply.xata.createdAt}
-      id={reply.id}
-      onReport={onReport}
-    />
-    <div className="mt-2">
-      <PostComponent
-        imageToken={reply.imageToken || reply.image || ''}
-        content={reply.content || ''}
-        youtubeID={reply.youtubeID || ''}
-      />
-    </div>
-  </div>
-);
 
 const ThreadComponent: React.FC<ThreadComponentProps> = ({
   thread,
@@ -207,7 +116,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
   const [highlightedId, setHighlightedId] = useState<string>();
 
   const router = useRouter();
-  const visibleRepliesNum = 7;
+  const visibleRepliesNum = 2;
   const visibleReplies =
     isPreview && !showAllReplies
       ? thread.replies.slice(-visibleRepliesNum)
@@ -216,16 +125,6 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
   const handleTitleClick = () => {
     if (isPreview) {
       router.push(`/service/${serviceId}/${thread.id}`);
-    }
-  };
-
-  const onReport = async (id: string) => {
-    try {
-      await axios.post('/api/report', { id, serviceId });
-      console.log('Successfully reported post:', id);
-    } catch (error) {
-      // 處理錯誤
-      console.error('Failed to report post:', error);
     }
   };
 
@@ -275,13 +174,13 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           userId={thread.userId || ''}
           createdAt={thread.xata.createdAt}
           id={thread.id}
-          onReport={onReport}
+          serviceId={serviceId}
         />
       </CardHeader>
       <CardContent className="pt-3">
         <PostComponent
           content={thread.content || ''}
-          imageToken={thread.imageToken || thread.image || ''}
+          imageURL={thread.imageToken || thread.image || ''}
           youtubeID={thread.youtubeID || ''}
         />
       </CardContent>
@@ -317,7 +216,22 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
                 }`}
               >
                 {index > 0 && <Separator />}
-                <ReplyComponent reply={reply} onReport={onReport} />
+                <div>
+                  <PostMeta
+                    name={reply.name || ''}
+                    userId={reply.userId || ''}
+                    createdAt={reply.xata.createdAt}
+                    id={reply.id}
+                    serviceId={serviceId}
+                  />
+                  <div className="mt-2">
+                    <PostComponent
+                      imageURL={reply.imageToken || reply.image || ''}
+                      content={reply.content || ''}
+                      youtubeID={reply.youtubeID || ''}
+                    />
+                  </div>
+                </div>
               </div>
             ))}
           </div>

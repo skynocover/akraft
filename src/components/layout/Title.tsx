@@ -1,4 +1,3 @@
-'use client';
 import Link from 'next/link';
 import { LinkItem } from '@/lib/types/link';
 
