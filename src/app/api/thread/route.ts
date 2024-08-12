@@ -3,12 +3,6 @@ import { XataClient } from '@/lib/xata/xata';
 import { validatePostInput, extractYouTubeVideoId } from '@/lib/utils/threads';
 import { fileToBase64, generateUserId } from '@/lib/utils/threads';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const serviceId = formData.get('serviceId') as string;

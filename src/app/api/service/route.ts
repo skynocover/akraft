@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { XataClient } from '@/lib/xata/xata';
 import { LinkItem } from '@/lib/types/link';
 
-export const config = {
-  api: {
-    bodyParser: true,
-  },
-};
-
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const name = formData.get('name') as string;
