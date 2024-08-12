@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "xata:gen": "xata codegen --output src/lib/xata/xata.ts",
-    "xata:upload": "xata schema upload src/lib/xata/schema.json"
+    "xata:upload": "xata schema upload src/lib/xata/schema.json",
+    "add-shadcn": "npx shadcn-ui@latest add $ARGS",
+    "test:ssr": "node utils/test-ssr.js"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.1",
