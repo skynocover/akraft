@@ -1,9 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 
@@ -17,9 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ThreadWithReplies } from '@/lib/types/thread';
-import { Image } from './Image';
-import PostCard from './PostCard';
-import { ReportButton } from './Report';
+import { ReplyButton } from './ReplyButton';
+import { PostMeta, PostComponent } from './Post';
 
 dayjs.extend(localizedFormat);
 
@@ -29,90 +26,12 @@ interface ThreadComponentProps {
   isPreview: boolean;
 }
 
-const PostContent: React.FC<{ content: string }> = ({ content }) => (
-  <ReactMarkdown
-    remarkPlugins={[remarkGfm]}
-    className="prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
-  >
-    {content}
-  </ReactMarkdown>
-);
-
-const MediaContent: React.FC<{
-  imageURL: string | null;
-  youtubeID: string | null;
-}> = ({ imageURL, youtubeID }) => {
-  if (imageURL) {
-    return (
-      <div>
-        <Image imageURL={imageURL} />
-      </div>
-    );
-  }
-  if (youtubeID) {
-    return (
-      <div className="aspect-w-16 aspect-h-9">
-        <iframe
-          src={`https://www.youtube.com/embed/${youtubeID}`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="rounded-lg w-full h-full"
-        ></iframe>
-      </div>
-    );
-  }
-  return null;
-};
-
-const PostComponent: React.FC<{
-  imageURL: string | null;
-  youtubeID: string | null;
-  content: string;
-}> = ({ imageURL, youtubeID, content }) => (
-  <div className="flex flex-col md:flex-row md:space-x-4">
-    {imageURL || youtubeID ? (
-      <>
-        <div className="w-full md:w-1/2 mb-4 md:mb-0">
-          <MediaContent imageURL={imageURL} youtubeID={youtubeID} />
-        </div>
-        <div className="w-full md:w-1/2">
-          <PostContent content={content} />
-        </div>
-      </>
-    ) : (
-      <div className="w-full md:w-2/3 mx-auto">
-        <PostContent content={content} />
-      </div>
-    )}
-  </div>
-);
-
-const PostMeta: React.FC<{
-  name: string;
-  userId: string;
-  createdAt: Date;
-  id: string;
-  serviceId: string;
-}> = ({ name, userId, createdAt, id, serviceId }) => {
-  return (
-    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-      <span className="font-semibold text-gray-700">{name}</span>
-      <span>ID: {userId}</span>
-      <span className="ml-auto flex items-center">
-        {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No: {id}
-        <ReportButton serviceId={serviceId} />
-      </span>
-    </div>
-  );
-};
-
 const ThreadComponent: React.FC<ThreadComponentProps> = ({
   thread,
   isPreview,
   serviceId,
 }) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
-  const [showReplyModal, setShowReplyModal] = useState(false);
   const [highlightedId, setHighlightedId] = useState<string>();
 
   const router = useRouter();
@@ -159,14 +78,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           >
             {thread.title}
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mb-1"
-            onClick={() => setShowReplyModal(true)}
-          >
-            <MessageCircle className="h-5 w-5" />
-          </Button>
+          <ReplyButton serviceId={serviceId} threadId={thread.id} />
         </div>
 
         <PostMeta
@@ -236,19 +148,6 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
             ))}
           </div>
         </CardFooter>
-      )}
-
-      {showReplyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="w-full max-w-md">
-            <PostCard
-              serviceId={serviceId}
-              threadId={thread.id}
-              isReply={true}
-              onClose={() => setShowReplyModal(false)}
-            />
-          </div>
-        </div>
       )}
     </Card>
   );

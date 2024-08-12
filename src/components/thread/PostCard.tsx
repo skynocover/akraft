@@ -30,6 +30,7 @@ export default function PostCard({
   isReply = false,
   onClose,
 }: PostCardProps) {
+  const fileInputID = `dropzone-file-${isReply ? `${threadId}-reply` : 'page'}`;
   const [markdownInfo, setMarkdownInfo] = useState('');
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
@@ -219,7 +220,7 @@ export default function PostCard({
             <TabsContent value="image">
               <div className="flex items-center justify-center w-full h-28 border-2 border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
                 <label
-                  htmlFor="dropzone-file"
+                  htmlFor={fileInputID}
                   className="flex flex-col items-center justify-center w-full h-full"
                 >
                   <Upload className="w-8 h-8 text-gray-400 mb-2" />
@@ -227,7 +228,7 @@ export default function PostCard({
                     {file ? file.name : 'Click or drag to upload image'}
                   </p>
                   <input
-                    id="dropzone-file"
+                    id={fileInputID}
                     type="file"
                     className="hidden"
                     onChange={handleFileChange}
