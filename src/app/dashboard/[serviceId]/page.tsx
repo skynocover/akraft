@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getService } from '@/lib/xata/threads';
 
 import ServiceEditor from '@/components/service/serviceEditor';
+import ReportList from '@/components/service/ReportList';
 
 export default async function Page({
   params,
@@ -27,6 +28,7 @@ export default async function Page({
       </h1>
 
       <ServiceEditor service={service} serviceId={params.serviceId} />
+      <ReportList serviceId={params.serviceId} />
     </div>
   );
 }

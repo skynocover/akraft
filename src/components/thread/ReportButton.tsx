@@ -16,24 +16,38 @@ import {
 
 interface ReportModalProps {
   serviceId: string;
+  threadId?: string;
+  replyId?: string;
 }
 
-export const ReportButton: React.FC<ReportModalProps> = ({ serviceId }) => {
+export const ReportButton: React.FC<ReportModalProps> = ({
+  serviceId,
+  threadId,
+  replyId,
+}) => {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [reportReason, setReportReason] = useState<string>('');
 
-  const onReport = async (id: string) => {
+  const onReport = async (content: string) => {
     try {
-      await axios.post('/api/report', { id, serviceId });
-      console.log('Successfully reported post:', id);
+      await axios.post('/api/reports', {
+        content,
+        serviceId,
+        threadId,
+        replyId,
+      });
     } catch (error) {
-      // 處理錯誤
       console.error('Failed to report post:', error);
     }
   };
 
   const handleReport = () => {
     onReport(reportReason);
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setReportReason('');
     setIsReportModalOpen(false);
   };
 
@@ -49,10 +63,7 @@ export const ReportButton: React.FC<ReportModalProps> = ({ serviceId }) => {
         <Flag className="h-4 w-4" />
       </Button>
 
-      <Dialog
-        open={isReportModalOpen}
-        onOpenChange={() => setIsReportModalOpen(false)}
-      >
+      <Dialog open={isReportModalOpen} onOpenChange={handleClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Report Post</DialogTitle>

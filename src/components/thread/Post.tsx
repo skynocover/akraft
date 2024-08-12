@@ -68,16 +68,22 @@ export const PostMeta: React.FC<{
   name: string;
   userId: string;
   createdAt: Date;
-  id: string;
+  threadId?: string;
+  replyId?: string;
   serviceId: string;
-}> = ({ name, userId, createdAt, id, serviceId }) => {
+}> = ({ name, userId, createdAt, threadId, replyId, serviceId }) => {
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
       <span className="font-semibold text-gray-700">{name}</span>
       <span>ID: {userId}</span>
       <span className="ml-auto flex items-center">
-        {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No: {id}
-        <ReportButton serviceId={serviceId} />
+        {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No:{' '}
+        {threadId || replyId}
+        <ReportButton
+          serviceId={serviceId}
+          threadId={threadId}
+          replyId={replyId}
+        />
       </span>
     </div>
   );

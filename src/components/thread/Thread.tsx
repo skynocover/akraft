@@ -85,7 +85,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           name={thread.name || ''}
           userId={thread.userId || ''}
           createdAt={thread.xata.createdAt}
-          id={thread.id}
+          threadId={thread.id}
           serviceId={serviceId}
         />
       </CardHeader>
@@ -133,7 +133,8 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
                     name={reply.name || ''}
                     userId={reply.userId || ''}
                     createdAt={reply.xata.createdAt}
-                    id={reply.id}
+                    threadId={thread.id}
+                    replyId={reply.id}
                     serviceId={serviceId}
                   />
                   <div className="mt-2">

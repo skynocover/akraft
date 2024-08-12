@@ -65,7 +65,6 @@
     {
       "name": "reports",
       "columns": [
-        { "name": "reason", "type": "string" },
         { "name": "content", "type": "text" },
         { "name": "thread", "type": "link", "link": { "table": "threads" } },
         { "name": "reply", "type": "link", "link": { "table": "replies" } },
