@@ -67,13 +67,11 @@ export default function PostCard({
       const formData = new FormData();
       formData.append('name', name);
       formData.append('content', markdownInfo);
-      formData.append('serviceId', serviceId);
 
       if (isReply) {
         if (!threadId) throw new Error('Thread ID is required for replies');
         const replyInput: PostInput = {
           threadId,
-          serviceId,
           name,
           content: markdownInfo,
           youtubeLink,
@@ -84,7 +82,6 @@ export default function PostCard({
         formData.append('sage', isSage.toString());
       } else {
         const postInput: PostInput = {
-          serviceId,
           title,
           name,
           content: markdownInfo,
@@ -103,9 +100,15 @@ export default function PostCard({
         formData.append('image', file);
       }
 
-      await axios.post(isReply ? '/api/reply' : '/api/thread', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await axios.post(
+        isReply
+          ? `/api/service/${serviceId}/reply`
+          : `/api/service/${serviceId}/thread`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        },
+      );
 
       // Reset form fields
       setTitle('');

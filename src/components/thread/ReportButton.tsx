@@ -30,9 +30,8 @@ export const ReportButton: React.FC<ReportModalProps> = ({
 
   const onReport = async (content: string) => {
     try {
-      await axios.post('/api/reports', {
+      await axios.post(`/api/service/${serviceId}/reports`, {
         content,
-        serviceId,
         threadId,
         replyId,
       });

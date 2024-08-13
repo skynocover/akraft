@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { XataClient } from '@/lib/xata/xata';
 import { validatePostInput, extractYouTubeVideoId } from '@/lib/utils/threads';
 import { fileToBase64, generateUserId } from '@/lib/utils/threads';
+import { handleAuth, NextAuthRequest } from '@/auth';
 
-export async function POST(req: NextRequest) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { serviceId: string } },
+) {
+  const serviceId = params.serviceId;
   const formData = await req.formData();
-  const serviceId = formData.get('serviceId') as string;
   const name = formData.get('name') as string;
   const threadId = formData.get('threadId') as string;
   const content = formData.get('content') as string;
@@ -75,3 +79,38 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+const _delete = async (
+  req: NextAuthRequest,
+  { params }: { params: { serviceId: string } },
+) => {
+  const serviceId = params.serviceId;
+  const replyId = req.nextUrl.searchParams.get('replyId');
+
+  if (!replyId) {
+    return NextResponse.json(
+      { error: 'Reply ID are required' },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const xata = new XataClient({
+      branch: serviceId,
+      apiKey: process.env.XATA_API_KEY,
+    });
+
+    // 刪除回覆
+    await xata.db.replies.delete(replyId);
+
+    return NextResponse.json({ message: 'Reply deleted successfully' });
+  } catch (error) {
+    console.error('Reply deletion error:', error);
+    return NextResponse.json(
+      { error: 'Reply deletion failed: ' + error },
+      { status: 500 },
+    );
+  }
+};
+
+export const DELETE = handleAuth(_delete);

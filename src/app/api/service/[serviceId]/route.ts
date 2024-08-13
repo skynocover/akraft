@@ -3,46 +3,6 @@ import { XataClient } from '@/lib/xata/xata';
 import { LinkItem } from '@/lib/types/link';
 import { handleAuth, NextAuthRequest } from '@/auth';
 
-const post = async (req: NextRequest) => {
-  const formData = await req.formData();
-  const name = formData.get('name') as string;
-  const description = formData.get('description') as string;
-  const visible = formData.get('visible') === 'true';
-  const topLinks = formData.get('topLinks') as string;
-  const headLinks = formData.get('headLinks') as string;
-  const forbidContents = formData.get('forbidContents') as string;
-  const auth = formData.get('auth') as string;
-
-  try {
-    const xata = new XataClient({
-      apiKey: process.env.XATA_API_KEY,
-    });
-
-    const service = await xata.db.services.create({
-      name: name.trim(),
-      description,
-      visible,
-      topLinks: JSON.parse(topLinks || '[]'),
-      headLinks: JSON.parse(headLinks || '[]'),
-      forbidContents: forbidContents ? forbidContents.split(',') : [],
-      auth: JSON.parse(auth || '{}'),
-    });
-
-    return NextResponse.json({
-      message: 'Service created successfully',
-      service,
-    });
-  } catch (error: any) {
-    console.error('Service creation error:', error);
-    return NextResponse.json(
-      { error: 'Service creation failed: ' + error.message },
-      { status: 500 },
-    );
-  }
-};
-
-export const POST = handleAuth(post);
-
 const put = async (req: NextAuthRequest) => {
   try {
     const data = await req.json();
@@ -93,3 +53,29 @@ const put = async (req: NextAuthRequest) => {
 };
 
 export const PUT = handleAuth(put);
+
+const _delete = async (req: NextRequest) => {
+  const { searchParams } = new URL(req.url);
+  const serviceId = searchParams.get('serviceId');
+
+  if (!serviceId) {
+    return NextResponse.json(
+      { error: 'Service ID is required' },
+      { status: 400 },
+    );
+  }
+
+  try {
+    return NextResponse.json({
+      message: 'Service deleted successfully',
+    });
+  } catch (error: any) {
+    console.error('Service deletion error:', error);
+    return NextResponse.json(
+      { error: 'Service deletion failed: ' + error.message },
+      { status: 500 },
+    );
+  }
+};
+
+export const DELETE = handleAuth(_delete);

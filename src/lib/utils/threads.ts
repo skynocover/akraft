@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 
 export interface PostInput {
-  serviceId?: string;
   threadId?: string; //Reply才會有
   title?: string;
   name?: string;
@@ -15,10 +14,6 @@ export function validatePostInput(input: PostInput) {
   const youtubeLinkFilled = !!input.youtubeLink;
   const imageFilled = !!input.image;
   console.log({ contentFilled, youtubeLinkFilled, imageFilled });
-
-  if (!input.serviceId) {
-    throw new Error('Service ID not found');
-  }
 
   if (!contentFilled && !youtubeLinkFilled && !imageFilled) {
     throw new Error(

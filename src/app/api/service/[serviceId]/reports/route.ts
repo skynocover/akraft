@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { XataClient } from '@/lib/xata/xata';
+import { handleAuth, NextAuthRequest } from '@/auth';
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const serviceId = searchParams.get('serviceId');
-
-  if (!serviceId) {
-    return NextResponse.json(
-      { error: 'Service ID is required' },
-      { status: 400 },
-    );
-  }
+const _get = async (
+  req: NextAuthRequest,
+  { params }: { params: { serviceId: string } },
+) => {
+  const serviceId = params.serviceId;
 
   try {
     const xata = new XataClient({
@@ -27,24 +23,22 @@ export async function GET(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
 
-export async function POST(req: NextRequest) {
+export const GET = handleAuth(_get);
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { serviceId: string } },
+) {
   try {
+    const serviceId = params.serviceId;
     const data = await req.json();
 
     const userIp = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';
-    const serviceId = data.serviceId as string;
     const threadId = data.threadId as string | undefined;
     const replyId = data.replyId as string | undefined;
     const content = data.content as string | undefined;
-
-    if (!serviceId) {
-      return NextResponse.json(
-        { error: 'Service ID is required' },
-        { status: 400 },
-      );
-    }
 
     if (!threadId) {
       return NextResponse.json(
@@ -77,9 +71,11 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const serviceId = searchParams.get('serviceId');
+const _delete = async (
+  req: NextAuthRequest,
+  { params }: { params: { serviceId: string } },
+) => {
+  const serviceId = params.serviceId;
 
   if (!serviceId) {
     return NextResponse.json(
@@ -104,7 +100,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    await Promise.all(reportIds.map((id) => xata.db.reports.delete(id)));
+    await xata.db.reports.delete(reportIds);
 
     return NextResponse.json({
       message: 'Reports deleted successfully',
@@ -116,4 +112,6 @@ export async function DELETE(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
+
+export const DELETE = handleAuth(_delete);
