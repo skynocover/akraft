@@ -19,7 +19,8 @@
         { "name": "description", "type": "text" },
         { "name": "forbidContents", "type": "multiple" },
         { "name": "visible", "type": "bool" },
-        { "name": "auth", "type": "json" }
+        { "name": "auth", "type": "json" },
+        { "name": "ownerId", "type": "text" }
       ]
     },
     {

@@ -17,6 +17,7 @@ const tables = [
       { name: "auth", type: "json" },
       { name: "topLinks", type: "json", notNull: true, defaultValue: "[]" },
       { name: "headLinks", type: "json", notNull: true, defaultValue: "[]" },
+      { name: "ownerId", type: "text" },
     ],
   },
   {
@@ -55,7 +56,6 @@ const tables = [
   {
     name: "reports",
     columns: [
-      { name: "reason", type: "string" },
       { name: "content", type: "text" },
       { name: "thread", type: "link", link: { table: "threads" } },
       { name: "reply", type: "link", link: { table: "replies" } },
