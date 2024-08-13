@@ -25,14 +25,10 @@ import {
 import LoadingOverlay from '../common/LoadingOverlay';
 
 interface ServiceEditorProps {
-  serviceId: string;
   service: ServicesRecord;
 }
 
-const ServiceEditor: React.FC<ServiceEditorProps> = ({
-  serviceId,
-  service,
-}) => {
+const ServiceEditor: React.FC<ServiceEditorProps> = ({ service }) => {
   const router = useRouter();
   const [editedService, setEditedService] = useState<ServicesRecord>(service);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +55,7 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
         ...editedService,
         forbidContents: editedService.forbidContents?.filter((item) => !!item),
       };
-      await axios.put(`/api/service/${serviceId}`, serviceToSave);
+      await axios.put(`/api/service/${serviceToSave.id}`, serviceToSave);
       router.refresh();
     } catch (error) {
       console.error('Error saving service:', error);
@@ -71,7 +67,7 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      await axios.delete(`/api/service/${serviceId}`);
+      await axios.delete(`/api/service/${service.id}`);
       router.push('/services'); // Redirect to services list after deletion
     } catch (error) {
       console.error('Error deleting service:', error);

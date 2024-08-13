@@ -22,6 +22,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface ReportListProps {
   serviceId: string;
@@ -51,6 +62,7 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
   };
 
   const handleDeleteReports = async () => {
+    setIsLoading(true);
     try {
       await axios.delete(`/api/service/${serviceId}/reports`, {
         data: { reportIds: selectedReports },
@@ -68,24 +80,16 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
   };
 
   const handleDeleteThreadOrReply = async (report: ReportsRecord) => {
+    setIsLoading(true);
     setDeletingItemId(report.id);
     try {
-      if (report.reply?.id) {
-        await axios.delete(
-          `/api/service/${serviceId}/reply?replyId=${report.reply.id}`,
-        );
-        toast({
-          title: 'Success',
-          description: 'Reply has been deleted.',
-          variant: 'default',
+      if (report.reply?.id || report.thread?.id) {
+        await axios.delete(`/api/service/${serviceId}/reports`, {
+          data: { reportIds: [report.id], deleteAssociated: true },
         });
-      } else if (report.thread?.id) {
-        await axios.delete(
-          `/api/service/${serviceId}/thread?threadId=${report.thread.id}`,
-        );
         toast({
           title: 'Success',
-          description: 'Thread has been deleted.',
+          description: 'Thread or Reply has been deleted.',
           variant: 'default',
         });
       } else {
@@ -142,15 +146,34 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    className="ml-1"
-                    size="icon"
-                    onClick={handleDeleteReports}
-                    variant="destructive"
-                    disabled={selectedReports.length === 0}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        className="ml-1"
+                        size="icon"
+                        variant="destructive"
+                        disabled={selectedReports.length === 0}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Reports</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will delete the selected report records.
+                          It will not affect the associated threads or replies.
+                          Are you sure you want to proceed?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteReports}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>
@@ -218,21 +241,47 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button
-                            onClick={() => handleDeleteThreadOrReply(report)}
-                            size="icon"
-                            variant="destructive"
-                            disabled={
-                              deletingItemId === report.id ||
-                              (!report.thread && !report.reply)
-                            }
-                          >
-                            {report.reply?.id ? (
-                              <MessageSquareX className="h-4 w-4" />
-                            ) : (
-                              <FileX className="h-4 w-4" />
-                            )}
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="destructive"
+                                disabled={
+                                  deletingItemId === report.id ||
+                                  (!report.thread && !report.reply)
+                                }
+                              >
+                                {report.reply?.id ? (
+                                  <MessageSquareX className="h-4 w-4" />
+                                ) : (
+                                  <FileX className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Delete {report.reply?.id ? 'Reply' : 'Thread'}
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action will permanently delete the{' '}
+                                  {report.reply?.id ? 'reply' : 'thread'}{' '}
+                                  associated with this report. Are you sure you
+                                  want to proceed?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    handleDeleteThreadOrReply(report)
+                                  }
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>
