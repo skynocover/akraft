@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { XataClient } from '@/lib/xata/xata';
 import { LinkItem } from '@/lib/types/link';
+import { handleAuth, NextAuthRequest } from '@/auth';
 
-export async function POST(req: NextRequest) {
+const get = async (req: NextRequest) => {
+  console.log('AAA');
+
+  return NextResponse.json({ echo: 'echo' });
+};
+
+export const GET = handleAuth(get);
+
+const post = async (req: NextRequest) => {
   const formData = await req.formData();
   const name = formData.get('name') as string;
   const description = formData.get('description') as string;
@@ -38,9 +47,11 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
 
-export async function PUT(req: NextRequest) {
+export const POST = handleAuth(post);
+
+const put = async (req: NextAuthRequest) => {
   try {
     const data = await req.json();
 
@@ -76,8 +87,6 @@ export async function PUT(req: NextRequest) {
       auth: auth || {},
     });
 
-    console.log({ service });
-
     return NextResponse.json({
       message: 'Service updated successfully',
       service,
@@ -89,7 +98,9 @@ export async function PUT(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
+
+export const PUT = handleAuth(put);
 
 export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
