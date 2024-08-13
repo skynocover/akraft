@@ -80,11 +80,10 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const serviceId = searchParams.get('serviceId');
-  const reportId = searchParams.get('reportId');
 
-  if (!serviceId || !reportId) {
+  if (!serviceId) {
     return NextResponse.json(
-      { error: 'Service ID and Report ID are required' },
+      { error: 'Service ID is required' },
       { status: 400 },
     );
   }
@@ -95,15 +94,25 @@ export async function DELETE(req: NextRequest) {
       apiKey: process.env.XATA_API_KEY,
     });
 
-    await xata.db.reports.delete(reportId);
+    const body = await req.json();
+    const { reportIds } = body;
+
+    if (!Array.isArray(reportIds) || reportIds.length === 0) {
+      return NextResponse.json(
+        { error: 'Report IDs are required' },
+        { status: 400 },
+      );
+    }
+
+    await Promise.all(reportIds.map((id) => xata.db.reports.delete(id)));
 
     return NextResponse.json({
-      message: 'Report deleted successfully',
+      message: 'Reports deleted successfully',
     });
   } catch (error: any) {
-    console.error('Report deletion error:', error);
+    console.error('Reports deletion error:', error);
     return NextResponse.json(
-      { error: 'Report deletion failed: ' + error.message },
+      { error: 'Reports deletion failed: ' + error.message },
       { status: 500 },
     );
   }

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ReportsRecord } from '@/lib/xata/xata';
 import LoadingOverlay from '../common/LoadingOverlay';
 
@@ -22,6 +23,7 @@ interface ReportListProps {
 const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
   const [reports, setReports] = useState<ReportsRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedReports, setSelectedReports] = useState<string[]>([]);
 
   useEffect(() => {
     fetchReports();
@@ -39,14 +41,15 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
     }
   };
 
-  const handleDeleteReport = async (reportId: string) => {
+  const handleDeleteReports = async () => {
     try {
-      await axios.delete(
-        `/api/reports?serviceId=${serviceId}&reportId=${reportId}`,
-      );
+      await axios.delete(`/api/reports?serviceId=${serviceId}`, {
+        data: { reportIds: selectedReports },
+      });
       fetchReports();
+      setSelectedReports([]);
     } catch (error) {
-      console.error('Error deleting report:', error);
+      console.error('Error deleting reports:', error);
     }
   };
 
@@ -57,6 +60,22 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
     window.open(url, '_blank');
   };
 
+  const handleSelectReport = (reportId: string) => {
+    setSelectedReports((prev) =>
+      prev.includes(reportId)
+        ? prev.filter((id) => id !== reportId)
+        : [...prev, reportId],
+    );
+  };
+
+  const handleSelectAllReports = () => {
+    setSelectedReports(
+      selectedReports.length === reports.length
+        ? []
+        : reports.map((report) => report.id),
+    );
+  };
+
   return (
     <LoadingOverlay isLoading={isLoading}>
       <Card>
@@ -64,9 +83,27 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
           <CardTitle>Reports</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={handleDeleteReports}
+              variant="destructive"
+              disabled={selectedReports.length === 0}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox
+                    checked={
+                      selectedReports.length === reports.length &&
+                      reports.length !== 0
+                    }
+                    onCheckedChange={handleSelectAllReports}
+                  />
+                </TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Content</TableHead>
                 <TableHead>Actions</TableHead>
@@ -75,6 +112,12 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
             <TableBody>
               {reports.map((report) => (
                 <TableRow key={report.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedReports.includes(report.id)}
+                      onCheckedChange={() => handleSelectReport(report.id)}
+                    />
+                  </TableCell>
                   <TableCell>
                     {new Date(report.xata.createdAt).toLocaleString()}
                   </TableCell>
@@ -93,14 +136,6 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
                       title="Open in new tab"
                     >
                       <ExternalLink className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      onClick={() => handleDeleteReport(report.id)}
-                      size="icon"
-                      variant="destructive"
-                      title="Delete report"
-                    >
-                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
