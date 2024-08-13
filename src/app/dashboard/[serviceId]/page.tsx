@@ -25,7 +25,7 @@ export default async function Page({
         <h1 className="text-3xl font-bold">Service Management</h1>
         <LogoutButton />
       </div>
-      <ServiceEditor service={service} serviceId={params.serviceId} />
+      <ServiceEditor service={service} />
       <ReportList serviceId={params.serviceId} />
     </div>
   );

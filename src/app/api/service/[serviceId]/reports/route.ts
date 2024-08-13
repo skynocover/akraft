@@ -77,13 +77,6 @@ const _delete = async (
 ) => {
   const serviceId = params.serviceId;
 
-  if (!serviceId) {
-    return NextResponse.json(
-      { error: 'Service ID is required' },
-      { status: 400 },
-    );
-  }
-
   try {
     const xata = new XataClient({
       branch: serviceId,
@@ -91,7 +84,7 @@ const _delete = async (
     });
 
     const body = await req.json();
-    const { reportIds } = body;
+    const { reportIds, deleteAssociated = false } = body;
 
     if (!Array.isArray(reportIds) || reportIds.length === 0) {
       return NextResponse.json(
@@ -100,10 +93,40 @@ const _delete = async (
       );
     }
 
+    // Delete all associated replies
+    if (deleteAssociated) {
+      // Fetch all reports to be deleted
+      const reportsToDelete = (await xata.db.reports.read(reportIds)).filter(
+        (item) => !!item,
+      );
+
+      for (const report of reportsToDelete) {
+        if (report.reply && report.thread) {
+          // Case: Deleting a reply
+          await xata.db.replies.delete(report.reply.id);
+        } else if (report.thread && !report.reply) {
+          // Case: Deleting a thread
+          const relatedReplies = await xata.db.replies
+            .filter({ thread: report.thread.id })
+            .getAll();
+          await xata.db.replies.delete(relatedReplies.map((reply) => reply.id));
+
+          // Delete all associated reports
+          const relatedReports = await xata.db.reports
+            .filter({ thread: report.thread.id })
+            .getAll();
+          await xata.db.reports.delete(relatedReports.map((r) => r.id));
+
+          // Delete the thread
+          await xata.db.threads.delete(report.thread.id);
+        }
+      }
+    }
+
     await xata.db.reports.delete(reportIds);
 
     return NextResponse.json({
-      message: 'Reports deleted successfully',
+      message: 'Reports and associated content deleted successfully',
     });
   } catch (error: any) {
     console.error('Reports deletion error:', error);

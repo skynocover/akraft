@@ -3,12 +3,14 @@ import { XataClient } from '@/lib/xata/xata';
 import { LinkItem } from '@/lib/types/link';
 import { handleAuth, NextAuthRequest } from '@/auth';
 
-const put = async (req: NextAuthRequest) => {
+const put = async (
+  req: NextAuthRequest,
+  { params }: { params: { serviceId: string } },
+) => {
   try {
-    const data = await req.json();
+    const serviceId = params.serviceId;
 
-    const id = data.id as string;
-    const serviceId = data.serviceId as string;
+    const data = await req.json();
     const name = data.name as string;
     const description = data.description as string;
     const visible = data.visible as boolean;
@@ -17,19 +19,12 @@ const put = async (req: NextAuthRequest) => {
     const forbidContents = data.forbidContents as string;
     const auth = data.auth as string;
 
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Service ID is required' },
-        { status: 400 },
-      );
-    }
-
     const xata = new XataClient({
       branch: serviceId,
       apiKey: process.env.XATA_API_KEY,
     });
 
-    const service = await xata.db.services.update(id, {
+    const service = await xata.db.services.update(serviceId, {
       name: name.trim(),
       description,
       visible,
