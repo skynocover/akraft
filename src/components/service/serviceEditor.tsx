@@ -1,15 +1,28 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Plus, Trash2, Save, X } from 'lucide-react';
+
 import { LinkItem } from '@/lib/types/link';
 import { ServicesRecord } from '@/lib/xata/xata';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Plus, Trash2, Save, X } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import LoadingOverlay from '../common/LoadingOverlay';
 
 interface ServiceEditorProps {
   serviceId: string;
@@ -22,6 +35,7 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
 }) => {
   const router = useRouter();
   const [editedService, setEditedService] = useState<ServicesRecord>(service);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -39,109 +53,152 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   };
 
   const handleSave = async () => {
-    const service: ServicesRecord = {
-      ...editedService,
-      forbidContents: editedService.forbidContents?.filter((item) => !!item),
-    };
-    await axios.put('/api/service', { serviceId, ...service });
-    router.refresh();
+    setIsLoading(true);
+    try {
+      const serviceToSave: ServicesRecord = {
+        ...editedService,
+        forbidContents: editedService.forbidContents?.filter((item) => !!item),
+      };
+      await axios.put('/api/service', { serviceId, ...serviceToSave });
+      router.refresh();
+    } catch (error) {
+      console.error('Error saving service:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async () => {
-    await axios.delete('/api/service?serviceId=' + serviceId);
+    setIsLoading(true);
+    try {
+      await axios.delete('/api/service?serviceId=' + serviceId);
+      router.push('/services'); // Redirect to services list after deletion
+    } catch (error) {
+      console.error('Error deleting service:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl max-w-3xl mx-auto">
-      <div className="space-y-6">
-        <Input
-          name="name"
-          value={editedService.name || ''}
-          onChange={handleInputChange}
-          placeholder="Service Name"
-          className="text-xl font-semibold"
-        />
+    <LoadingOverlay isLoading={isLoading}>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>
+            <Input
+              name="name"
+              value={editedService.name || ''}
+              onChange={handleInputChange}
+              placeholder="Service Name"
+              className="text-2xl font-bold"
+            />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Textarea
+            name="description"
+            value={editedService.description || ''}
+            onChange={handleInputChange}
+            placeholder="Description"
+            className="min-h-[100px]"
+          />
 
-        <Textarea
-          name="description"
-          value={editedService.description || ''}
-          onChange={handleInputChange}
-          placeholder="Description"
-          className="min-h-[100px]"
-        />
+          <Tabs defaultValue="topLinks" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="topLinks">Top Links</TabsTrigger>
+              <TabsTrigger value="headLinks">Head Links</TabsTrigger>
+              <TabsTrigger value="forbidContents">Forbidden</TabsTrigger>
+              <TabsTrigger value="auth">Auth</TabsTrigger>
+            </TabsList>
 
-        <Tabs defaultValue="topLinks" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="topLinks">Top Links</TabsTrigger>
-            <TabsTrigger value="headLinks">Head Links</TabsTrigger>
-            <TabsTrigger value="forbidContents">Forbidden</TabsTrigger>
-            <TabsTrigger value="auth">Auth</TabsTrigger>
-          </TabsList>
+            <TabsContent value="topLinks">
+              <Card>
+                <CardContent className="pt-6">
+                  <LinkEditor
+                    links={editedService.topLinks || []}
+                    onLinksChange={(links) =>
+                      handleLinkChange(links, 'topLinks')
+                    }
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="topLinks">
-            <Card>
-              <CardContent className="pt-6">
-                <LinkEditor
-                  links={editedService.topLinks || []}
-                  onLinksChange={(links) => handleLinkChange(links, 'topLinks')}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabsContent value="headLinks">
+              <Card>
+                <CardContent className="pt-6">
+                  <LinkEditor
+                    links={editedService.headLinks || []}
+                    onLinksChange={(links) =>
+                      handleLinkChange(links, 'headLinks')
+                    }
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="headLinks">
-            <Card>
-              <CardContent className="pt-6">
-                <LinkEditor
-                  links={editedService.headLinks || []}
-                  onLinksChange={(links) =>
-                    handleLinkChange(links, 'headLinks')
-                  }
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabsContent value="forbidContents">
+              <Card>
+                <CardContent className="pt-6">
+                  <ForbidContentsEditor
+                    contents={editedService.forbidContents || []}
+                    onContentsChange={handleForbidContentsChange}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="forbidContents">
-            <Card>
-              <CardContent className="pt-6">
-                <ForbidContentsEditor
-                  contents={editedService.forbidContents || []}
-                  onContentsChange={handleForbidContentsChange}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabsContent value="auth">
+              <Card>
+                <CardContent className="pt-6">
+                  <Textarea
+                    name="auth"
+                    value={JSON.stringify(editedService.auth, null, 2) || ''}
+                    onChange={(e) =>
+                      setEditedService({
+                        ...editedService,
+                        auth: JSON.parse(e.target.value),
+                      })
+                    }
+                    className="min-h-[200px] font-mono text-sm"
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
 
-          <TabsContent value="auth">
-            <Card>
-              <CardContent className="pt-6">
-                <Textarea
-                  name="auth"
-                  value={JSON.stringify(editedService.auth, null, 2) || ''}
-                  onChange={(e) =>
-                    setEditedService({
-                      ...editedService,
-                      auth: JSON.parse(e.target.value),
-                    })
-                  }
-                  className="min-h-[200px] font-mono text-sm"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        <div className="flex justify-between items-center mt-8">
-          <Button onClick={handleDelete} variant="destructive" size="icon">
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button onClick={handleSave} size="icon">
-            <Save className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
+          <div className="flex justify-between items-center mt-8">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="icon">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Are you sure you want to delete this service?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the service and all associated data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button onClick={handleSave} size="icon">
+              <Save className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </LoadingOverlay>
   );
 };
 

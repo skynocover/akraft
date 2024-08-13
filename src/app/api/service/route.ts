@@ -3,14 +3,6 @@ import { XataClient } from '@/lib/xata/xata';
 import { LinkItem } from '@/lib/types/link';
 import { handleAuth, NextAuthRequest } from '@/auth';
 
-const get = async (req: NextRequest) => {
-  console.log('AAA');
-
-  return NextResponse.json({ echo: 'echo' });
-};
-
-export const GET = handleAuth(get);
-
 const post = async (req: NextRequest) => {
   const formData = await req.formData();
   const name = formData.get('name') as string;
