@@ -67,7 +67,7 @@ export const getThreads = async ({
         const transformedReplies = replies.map((reply) => ({
           ...reply,
           image: reply.image?.url,
-          threadId: reply.thread?.id || '', //TODO: SSR沒辦法傳遞多層JSON
+          threadId: reply.thread?.id || '', //TODO: SSR沒辦法傳遞多層JSON kanpilotID(lbf2er96npzlifrv1juunxmf)
           thread: undefined,
         }));
 
@@ -127,7 +127,7 @@ export const getThread = async ({
       replies: replies.map((reply) => ({
         ...reply,
         image: reply.image?.url,
-        threadId: reply.thread?.id || '', //TODO: SSR沒辦法傳遞多層json
+        threadId: reply.thread?.id || '', //TODO: SSR沒辦法傳遞多層json kanpilotID(x98q9zbwopehxyq2i49hj8i2)
         thread: undefined,
       })),
     };
