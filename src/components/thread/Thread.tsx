@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import {
   Card,
@@ -17,8 +15,6 @@ import { Separator } from '@/components/ui/separator';
 import { ThreadWithReplies } from '@/lib/types/thread';
 import { ReplyButton } from './ReplyButton';
 import { PostMeta, PostComponent } from './Post';
-
-dayjs.extend(localizedFormat);
 
 interface ThreadComponentProps {
   serviceId: string;

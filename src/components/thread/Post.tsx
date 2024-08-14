@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import dayjs from 'dayjs';
 
 import { Image } from './Image';
 import { ReportButton } from './ReportButton';
+import { formateTime } from '@/lib/utils/dayjs';
 
 const PostContent: React.FC<{ content: string }> = ({ content }) => (
   <ReactMarkdown
@@ -86,8 +86,7 @@ export const PostMeta: React.FC<{
       <span className="font-semibold text-gray-700">{name}</span>
       <span>ID: {userId}</span>
       <span className="ml-auto flex items-center">
-        {dayjs(createdAt).format('HH:mm:ss YYYY/MM/DD')} No:{' '}
-        {threadId || replyId}
+        {formateTime(createdAt)} No: {threadId || replyId}
         <ReportButton
           serviceId={serviceId}
           threadId={threadId}

@@ -5,7 +5,7 @@ import { getService } from '@/lib/xata/threads';
 
 import ServiceEditor from '@/components/service/serviceEditor';
 import ReportList from '@/components/service/ReportList';
-import { LogoutButton } from '@/components/service/LogoutButton';
+import { ProfileButton } from '@/components/service/ProfileButton';
 
 export default async function Page({
   params,
@@ -23,7 +23,7 @@ export default async function Page({
     <div className="container mt-2 mx-auto space-y-6 max-w-4xl ">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Service Management</h1>
-        <LogoutButton />
+        <ProfileButton />
       </div>
       <ServiceEditor service={service} serviceId={params.serviceId} />
       <ReportList serviceId={params.serviceId} />
