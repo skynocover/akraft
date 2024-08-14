@@ -1,24 +1,18 @@
 import { NextResponse } from 'next/server';
-
-import { NextAuthRequest } from '@/auth';
-import { withServiceFetch, ServiceContext } from './serviceFetch';
+import { NextAuthRequest, ServiceRoleContext, handleRole } from '@/auth';
 
 export const withServiceOwnerCheck = (handler: Function) => {
-  return withServiceFetch(
-    async (req: NextAuthRequest, context: ServiceContext) => {
-      const { service } = context;
-      const userId = req.auth?.user?.id || '';
-
-      if (service.ownerId !== userId) {
+  return handleRole(
+    async (req: NextAuthRequest, context: ServiceRoleContext) => {
+      if (!context.isOwner) {
         return NextResponse.json(
           { error: 'You are not owner of service' },
-          { status: 400 },
+          { status: 403 },
         );
       }
-
       return handler(req, context);
     },
   );
 };
 
-export type ServiceOwnerContext = ServiceContext;
+export type ServiceOwnerContext = ServiceRoleContext;

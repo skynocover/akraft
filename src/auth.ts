@@ -4,6 +4,8 @@ import Google from 'next-auth/providers/google';
 import { NextRequest, NextResponse } from 'next/server';
 import { Session } from 'next-auth';
 
+import { XataClient, ServicesRecord } from '@/lib/xata/xata';
+
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [Google],
 
@@ -45,11 +47,30 @@ export const handleAuth = (
 ) => {
   return auth(async (req, res) => {
     if (!req.auth) {
-      return NextResponse.json(
-        { message: 'Not authenticated' },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     return handler(req, res);
   });
 };
+
+export const handleRole = (handler: Function) => {
+  return auth(async (req: NextAuthRequest, context: any) => {
+    const serviceId = context.params.serviceId;
+    const xata = new XataClient({
+      branch: serviceId,
+      apiKey: process.env.XATA_API_KEY,
+    });
+    const service = await xata.db.services.getFirst();
+    if (!service) {
+      return NextResponse.json({ error: 'Service not found' }, { status: 404 });
+    }
+    const isOwner = req.auth?.user?.id === service.ownerId;
+    return handler(req, { ...context, xata, service, isOwner });
+  });
+};
+
+export interface ServiceRoleContext {
+  xata: XataClient;
+  service: ServicesRecord;
+  isOwner: boolean;
+}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { XataClient } from '@/lib/xata/xata';
-import { handleAuth, NextAuthRequest } from '@/auth';
+import { NextAuthRequest } from '@/auth';
 import {
   withServiceOwnerCheck,
   ServiceOwnerContext,
@@ -20,7 +20,7 @@ const _get = async (req: NextAuthRequest, context: ServiceOwnerContext) => {
   }
 };
 
-export const GET = handleAuth(withServiceOwnerCheck(_get));
+export const GET = withServiceOwnerCheck(_get);
 
 export async function POST(
   req: NextRequest,
@@ -126,4 +126,4 @@ const _delete = async (req: NextAuthRequest, context: ServiceOwnerContext) => {
   }
 };
 
-export const DELETE = handleAuth(withServiceOwnerCheck(_delete));
+export const DELETE = withServiceOwnerCheck(_delete);

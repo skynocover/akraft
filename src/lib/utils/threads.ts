@@ -9,6 +9,8 @@ export interface PostInput {
   image?: File | null;
 }
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export function validatePostInput(input: PostInput) {
   const contentFilled = !!input.content || input.content?.trim() !== '';
   const youtubeLinkFilled = !!input.youtubeLink;
@@ -27,8 +29,13 @@ export function validatePostInput(input: PostInput) {
     );
   }
 
-  if (input.image && !input.image.type.startsWith('image/')) {
-    throw new Error('Only accept image');
+  if (input.image) {
+    if (input.image.size > MAX_IMAGE_SIZE) {
+      throw new Error('Image size exceeds the limit');
+    }
+    if (!input.image.type.startsWith('image/')) {
+      throw new Error('Only accept image');
+    }
   }
 
   if (youtubeLinkFilled) {

@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { NextAuthRequest } from '@/auth';
-import { withServiceFetch, ServiceContext } from './serviceFetch';
+import { NextAuthRequest, handleRole, ServiceRoleContext } from '@/auth';
 
 export const withPostCheck = (handler: Function) => {
-  return withServiceFetch(
-    async (req: NextAuthRequest, context: ServiceContext) => {
+  return handleRole(
+    async (req: NextAuthRequest, context: ServiceRoleContext) => {
       const { service, xata } = context;
+
       const userIp = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';
 
       const blockedIPs = service.blockedIPs || [];
@@ -17,7 +17,7 @@ export const withPostCheck = (handler: Function) => {
       }
 
       const blockContent = service.forbidContents || [];
-      const formData = await req.formData();
+      const formData = await req.clone().formData(); // req是一個可以被消耗的 所以要加上clone
       const title = formData.get('title') as string;
       const content = formData.get('content') as string;
 
@@ -28,7 +28,7 @@ export const withPostCheck = (handler: Function) => {
         );
       }
 
-      return handler(req, context);
+      return handler(req, { ...context, xata, service });
     },
   );
 };
@@ -50,4 +50,4 @@ const isContentBlocked = (
   );
 };
 
-export type PostCheckContext = ServiceContext;
+export type PostCheckContext = ServiceRoleContext;

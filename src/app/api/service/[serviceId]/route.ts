@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { LinkItem } from '@/lib/types/link';
-import { handleAuth, NextAuthRequest } from '@/auth';
+import { NextAuthRequest } from '@/auth';
 import {
   withServiceOwnerCheck,
   ServiceOwnerContext,
@@ -41,7 +41,7 @@ const put = async (req: NextAuthRequest, context: ServiceOwnerContext) => {
   }
 };
 
-export const PUT = handleAuth(withServiceOwnerCheck(put));
+export const PUT = withServiceOwnerCheck(put);
 
 const _delete = async (req: NextRequest, context: ServiceOwnerContext) => {
   const { xata, service } = context;
@@ -59,4 +59,4 @@ const _delete = async (req: NextRequest, context: ServiceOwnerContext) => {
   }
 };
 
-export const DELETE = handleAuth(withServiceOwnerCheck(_delete));
+export const DELETE = withServiceOwnerCheck(_delete);
