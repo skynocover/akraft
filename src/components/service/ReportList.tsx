@@ -198,6 +198,8 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
                 </TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Content</TableHead>
+                <TableHead>Reporter IP</TableHead>
+                <TableHead>Poster IP</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -214,6 +216,8 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
                     {new Date(report.xata.createdAt).toLocaleString()}
                   </TableCell>
                   <TableCell>{report.content}</TableCell>
+                  <TableCell>{report.userIp}</TableCell>
+                  <TableCell>{report.reportedIp}</TableCell>
                   <TableCell>
                     <TooltipProvider>
                       <Tooltip>

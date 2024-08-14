@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { XataClient } from '@/lib/xata/xata';
 import { handleAuth, NextAuthRequest } from '@/auth';
+import {
+  withServiceOwnerCheck,
+  ServiceOwnerContext,
+} from '@/lib/middleware/serviceOwnerCheck';
 
-const _get = async (
-  req: NextAuthRequest,
-  { params }: { params: { serviceId: string } },
-) => {
-  const serviceId = params.serviceId;
-
+const _get = async (req: NextAuthRequest, context: ServiceOwnerContext) => {
   try {
-    const xata = new XataClient({
-      branch: serviceId,
-      apiKey: process.env.XATA_API_KEY,
-    });
-
-    const reports = await xata.db.reports.getAll();
+    const reports = await context.xata.db.reports.getAll();
     return NextResponse.json(reports);
   } catch (error: any) {
     console.error('Fetching reports error:', error);
@@ -25,7 +20,7 @@ const _get = async (
   }
 };
 
-export const GET = handleAuth(_get);
+export const GET = handleAuth(withServiceOwnerCheck(_get));
 
 export async function POST(
   req: NextRequest,
@@ -39,6 +34,7 @@ export async function POST(
     const threadId = data.threadId as string | undefined;
     const replyId = data.replyId as string | undefined;
     const content = data.content as string | undefined;
+    const reportedIp = data.reportedIp as string | undefined;
 
     if (!threadId) {
       return NextResponse.json(
@@ -57,6 +53,7 @@ export async function POST(
       reply: replyId,
       content,
       userIp,
+      reportedIp,
     });
 
     return NextResponse.json({
@@ -71,17 +68,9 @@ export async function POST(
   }
 }
 
-const _delete = async (
-  req: NextAuthRequest,
-  { params }: { params: { serviceId: string } },
-) => {
-  const serviceId = params.serviceId;
-
+const _delete = async (req: NextAuthRequest, context: ServiceOwnerContext) => {
   try {
-    const xata = new XataClient({
-      branch: serviceId,
-      apiKey: process.env.XATA_API_KEY,
-    });
+    const { xata } = context;
 
     const body = await req.json();
     const { reportIds, deleteAssociated = false } = body;
@@ -137,4 +126,4 @@ const _delete = async (
   }
 };
 
-export const DELETE = handleAuth(_delete);
+export const DELETE = handleAuth(withServiceOwnerCheck(_delete));

@@ -2,12 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { XataClient } from '@/lib/xata/xata';
 import { validatePostInput, extractYouTubeVideoId } from '@/lib/utils/threads';
 import { fileToBase64, generateUserId } from '@/lib/utils/threads';
+import { withPostCheck, PostCheckContext } from '@/lib/middleware/postCheck';
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { serviceId: string } },
-) {
-  const serviceId = params.serviceId;
+const post = async (req: NextRequest, context: PostCheckContext) => {
+  const { xata } = context;
   const formData = await req.formData();
   const name = formData.get('name') as string;
   const threadId = formData.get('threadId') as string;
@@ -17,7 +15,6 @@ export async function POST(
   const sage = formData.get('sage') === 'true';
 
   const input = {
-    serviceId,
     threadId,
     name,
     content,
@@ -38,11 +35,6 @@ export async function POST(
         { status: 400 },
       );
     }
-
-    const xata = new XataClient({
-      branch: serviceId,
-      apiKey: process.env.XATA_API_KEY,
-    });
 
     const reply = await xata.db.replies.create({
       thread: threadId,
@@ -77,4 +69,6 @@ export async function POST(
       { status: 500 },
     );
   }
-}
+};
+
+export const POST = withPostCheck(post);

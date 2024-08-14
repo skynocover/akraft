@@ -87,6 +87,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           createdAt={thread.xata.createdAt}
           threadId={thread.id}
           serviceId={serviceId}
+          reportedIp={thread.userIp || ''}
         />
       </CardHeader>
       <CardContent className="pt-3">
@@ -136,6 +137,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
                     threadId={thread.id}
                     replyId={reply.id}
                     serviceId={serviceId}
+                    reportedIp={reply.userIp || ''}
                   />
                   <div className="mt-2">
                     <PostComponent

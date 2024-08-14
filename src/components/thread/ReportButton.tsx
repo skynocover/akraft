@@ -16,12 +16,14 @@ import {
 
 interface ReportModalProps {
   serviceId: string;
+  reportedIp: string;
   threadId?: string;
   replyId?: string;
 }
 
 export const ReportButton: React.FC<ReportModalProps> = ({
   serviceId,
+  reportedIp,
   threadId,
   replyId,
 }) => {
@@ -34,6 +36,7 @@ export const ReportButton: React.FC<ReportModalProps> = ({
         content,
         threadId,
         replyId,
+        reportedIp,
       });
     } catch (error) {
       console.error('Failed to report post:', error);

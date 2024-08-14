@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Upload, Link, Eye, EyeOff, Loader, X } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -124,9 +124,14 @@ export default function PostCard({
       router.refresh();
     } catch (error) {
       console.error('Submission error:', error);
-      setError(
-        error instanceof Error ? error.message : 'An unexpected error occurred',
-      );
+      console.log(error instanceof AxiosError);
+      const message =
+        error instanceof AxiosError
+          ? error.response?.data.error
+          : error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred';
+      setError(message);
     } finally {
       setIsLoading(false);
     }

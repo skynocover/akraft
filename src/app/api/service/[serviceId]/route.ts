@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { XataClient } from '@/lib/xata/xata';
 import { LinkItem } from '@/lib/types/link';
 import { handleAuth, NextAuthRequest } from '@/auth';
+import {
+  withServiceOwnerCheck,
+  ServiceOwnerContext,
+} from '@/lib/middleware/serviceOwnerCheck';
 
-const put = async (
-  req: NextAuthRequest,
-  { params }: { params: { serviceId: string } },
-) => {
+const put = async (req: NextAuthRequest, context: ServiceOwnerContext) => {
   try {
-    const serviceId = params.serviceId;
+    const { xata, service } = context;
 
     const data = await req.json();
     const name = data.name as string;
@@ -19,12 +19,7 @@ const put = async (
     const forbidContents = data.forbidContents as string;
     const auth = data.auth as string;
 
-    const xata = new XataClient({
-      branch: serviceId,
-      apiKey: process.env.XATA_API_KEY,
-    });
-
-    const service = await xata.db.services.update(serviceId, {
+    await xata.db.services.update(service.id, {
       name: name.trim(),
       description,
       visible,
@@ -36,7 +31,6 @@ const put = async (
 
     return NextResponse.json({
       message: 'Service updated successfully',
-      service,
     });
   } catch (error: any) {
     console.error('Service update error:', error);
@@ -47,18 +41,10 @@ const put = async (
   }
 };
 
-export const PUT = handleAuth(put);
+export const PUT = handleAuth(withServiceOwnerCheck(put));
 
-const _delete = async (req: NextRequest) => {
-  const { searchParams } = new URL(req.url);
-  const serviceId = searchParams.get('serviceId');
-
-  if (!serviceId) {
-    return NextResponse.json(
-      { error: 'Service ID is required' },
-      { status: 400 },
-    );
-  }
+const _delete = async (req: NextRequest, context: ServiceOwnerContext) => {
+  const { xata, service } = context;
 
   try {
     return NextResponse.json({
@@ -73,4 +59,4 @@ const _delete = async (req: NextRequest) => {
   }
 };
 
-export const DELETE = handleAuth(_delete);
+export const DELETE = handleAuth(withServiceOwnerCheck(_delete));

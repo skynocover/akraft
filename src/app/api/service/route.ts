@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { XataClient } from '@/lib/xata/xata';
-import { LinkItem } from '@/lib/types/link';
-import { handleAuth, NextAuthRequest } from '@/auth';
+import { handleAuth } from '@/auth';
 
 const post = async (req: NextRequest) => {
   const formData = await req.formData();
@@ -42,54 +41,3 @@ const post = async (req: NextRequest) => {
 };
 
 export const POST = handleAuth(post);
-
-const put = async (req: NextAuthRequest) => {
-  try {
-    const data = await req.json();
-
-    const id = data.id as string;
-    const serviceId = data.serviceId as string;
-    const name = data.name as string;
-    const description = data.description as string;
-    const visible = data.visible as boolean;
-    const topLinks = data.topLinks as LinkItem;
-    const headLinks = data.headLinks as LinkItem;
-    const forbidContents = data.forbidContents as string;
-    const auth = data.auth as string;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Service ID is required' },
-        { status: 400 },
-      );
-    }
-
-    const xata = new XataClient({
-      branch: serviceId,
-      apiKey: process.env.XATA_API_KEY,
-    });
-
-    const service = await xata.db.services.update(id, {
-      name: name.trim(),
-      description,
-      visible,
-      topLinks: topLinks || [],
-      headLinks: headLinks || [],
-      forbidContents: forbidContents ? forbidContents : [],
-      auth: auth || {},
-    });
-
-    return NextResponse.json({
-      message: 'Service updated successfully',
-      service,
-    });
-  } catch (error: any) {
-    console.error('Service update error:', error);
-    return NextResponse.json(
-      { error: 'Service update failed: ' + error.message },
-      { status: 500 },
-    );
-  }
-};
-
-export const PUT = handleAuth(put);

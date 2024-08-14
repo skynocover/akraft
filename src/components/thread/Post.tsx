@@ -71,7 +71,16 @@ export const PostMeta: React.FC<{
   threadId?: string;
   replyId?: string;
   serviceId: string;
-}> = ({ name, userId, createdAt, threadId, replyId, serviceId }) => {
+  reportedIp: string;
+}> = ({
+  name,
+  userId,
+  createdAt,
+  threadId,
+  replyId,
+  serviceId,
+  reportedIp,
+}) => {
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
       <span className="font-semibold text-gray-700">{name}</span>
@@ -83,6 +92,7 @@ export const PostMeta: React.FC<{
           serviceId={serviceId}
           threadId={threadId}
           replyId={replyId}
+          reportedIp={reportedIp}
         />
       </span>
     </div>

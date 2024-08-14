@@ -18,6 +18,7 @@
         },
         { "name": "description", "type": "text" },
         { "name": "forbidContents", "type": "multiple" },
+        { "name": "blockedIPs", "type": "multiple" },
         { "name": "visible", "type": "bool" },
         { "name": "auth", "type": "json" },
         { "name": "ownerId", "type": "text" }
@@ -69,7 +70,8 @@
         { "name": "content", "type": "text" },
         { "name": "thread", "type": "link", "link": { "table": "threads" } },
         { "name": "reply", "type": "link", "link": { "table": "replies" } },
-        { "name": "userIp", "type": "string" }
+        { "name": "userIp", "type": "string" },
+        { "name": "reportedIp", "type": "string" }
       ]
     }
   ]

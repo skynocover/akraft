@@ -26,9 +26,13 @@ import LoadingOverlay from '../common/LoadingOverlay';
 
 interface ServiceEditorProps {
   service: ServicesRecord;
+  serviceId: string;
 }
 
-const ServiceEditor: React.FC<ServiceEditorProps> = ({ service }) => {
+const ServiceEditor: React.FC<ServiceEditorProps> = ({
+  service,
+  serviceId,
+}) => {
   const router = useRouter();
   const [editedService, setEditedService] = useState<ServicesRecord>(service);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,14 +52,19 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({ service }) => {
     setEditedService({ ...editedService, forbidContents: contents });
   };
 
+  const handleBlockedIPsChange = (ips: string[]) => {
+    setEditedService({ ...editedService, blockedIPs: ips });
+  };
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
       const serviceToSave: ServicesRecord = {
         ...editedService,
         forbidContents: editedService.forbidContents?.filter((item) => !!item),
+        blockedIPs: editedService.blockedIPs?.filter((ip) => validateIP(ip)),
       };
-      await axios.put(`/api/service/${serviceToSave.id}`, serviceToSave);
+      await axios.put(`/api/service/${serviceId}`, serviceToSave);
       router.refresh();
     } catch (error) {
       console.error('Error saving service:', error);
@@ -68,7 +77,7 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({ service }) => {
     setIsLoading(true);
     try {
       await axios.delete(`/api/service/${service.id}`);
-      router.push('/services'); // Redirect to services list after deletion
+      router.push('/services');
     } catch (error) {
       console.error('Error deleting service:', error);
     } finally {
@@ -100,10 +109,11 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({ service }) => {
           />
 
           <Tabs defaultValue="topLinks" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="topLinks">Top Links</TabsTrigger>
               <TabsTrigger value="headLinks">Head Links</TabsTrigger>
               <TabsTrigger value="forbidContents">Forbidden</TabsTrigger>
+              <TabsTrigger value="blockedIPs">Blocked IPs</TabsTrigger>
               <TabsTrigger value="auth">Auth</TabsTrigger>
             </TabsList>
 
@@ -139,6 +149,17 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({ service }) => {
                   <ForbidContentsEditor
                     contents={editedService.forbidContents || []}
                     onContentsChange={handleForbidContentsChange}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="blockedIPs">
+              <Card>
+                <CardContent className="pt-6">
+                  <BlockedIPsEditor
+                    ips={editedService.blockedIPs || []}
+                    onIPsChange={handleBlockedIPsChange}
                   />
                 </CardContent>
               </Card>
@@ -315,6 +336,76 @@ const ForbidContentsEditor: React.FC<ForbidContentsEditorProps> = ({
       </Button>
     </div>
   );
+};
+
+interface BlockedIPsEditorProps {
+  ips: string[];
+  onIPsChange: (ips: string[]) => void;
+}
+
+const BlockedIPsEditor: React.FC<BlockedIPsEditorProps> = ({
+  ips,
+  onIPsChange,
+}) => {
+  const [localIPs, setLocalIPs] = useState<string[]>(ips);
+
+  const handleIPChange = (index: number, value: string) => {
+    const newIPs = [...localIPs];
+    newIPs[index] = value;
+    setLocalIPs(newIPs);
+    onIPsChange(newIPs);
+  };
+
+  const handleAddIP = () => {
+    const newIPs = [...localIPs, ''];
+    setLocalIPs(newIPs);
+    onIPsChange(newIPs);
+  };
+
+  const handleRemoveIP = (index: number) => {
+    const newIPs = localIPs.filter((_, i) => i !== index);
+    setLocalIPs(newIPs);
+    onIPsChange(newIPs);
+  };
+
+  return (
+    <div className="space-y-4">
+      {localIPs.map((ip, index) => (
+        <div key={index} className="flex items-center space-x-2">
+          <Input
+            value={ip}
+            onChange={(e) => handleIPChange(index, e.target.value)}
+            placeholder="IP Address or Range"
+            className="flex-1"
+          />
+          <Button
+            onClick={() => handleRemoveIP(index)}
+            size="icon"
+            variant="ghost"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      ))}
+      <Button onClick={handleAddIP} variant="outline" className="w-full">
+        <Plus className="h-4 w-4 mr-2" /> Add IP Address
+      </Button>
+    </div>
+  );
+};
+
+const validateIP = (ip: string): boolean => {
+  // Allow partial IP inputs (e.g., "192.168")
+  const parts = ip.split('.');
+  if (parts.length > 4) return false;
+
+  for (let part of parts) {
+    if (part === '') continue;
+    const num = parseInt(part, 10);
+    if (isNaN(num) || num < 0 || num > 255) return false;
+  }
+
+  return true;
 };
 
 export default ServiceEditor;

@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { XataClient } from '@/lib/xata/xata';
 import { validatePostInput, extractYouTubeVideoId } from '@/lib/utils/threads';
 import { fileToBase64, generateUserId } from '@/lib/utils/threads';
+import { withPostCheck, PostCheckContext } from '@/lib/middleware/postCheck';
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { serviceId: string } },
-) {
-  const serviceId = params.serviceId;
+const post = async (req: NextRequest, context: PostCheckContext) => {
+  const { xata } = context;
   const formData = await req.formData();
   const name = formData.get('name') as string;
   const title = formData.get('title') as string;
@@ -15,7 +12,6 @@ export async function POST(
   const youtubeLink = formData.get('youtubeLink') as string;
   const image = formData.get('image') as File | null;
   const input = {
-    serviceId,
     title,
     name,
     content,
@@ -27,10 +23,7 @@ export async function POST(
 
   try {
     validatePostInput(input);
-    const xata = new XataClient({
-      branch: serviceId,
-      apiKey: process.env.XATA_API_KEY,
-    });
+
     const thread = await xata.db.threads.create({
       title: title.trim() || 'Untitled',
       name: name.trim() || 'anonymous',
@@ -59,4 +52,6 @@ export async function POST(
       { status: 500 },
     );
   }
-}
+};
+
+export const POST = withPostCheck(post);
