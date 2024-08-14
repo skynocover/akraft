@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.line-break {
+  white-space: pre-wrap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

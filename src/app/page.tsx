@@ -1,4 +1,6 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
+
 import { getService, getThreads } from '@/lib/xata/threads';
 import { ThreadCarousel } from '@/components/homepage/ThreadCarousel';
 import {
@@ -35,7 +37,13 @@ export default async function Home() {
             return (
               <Card key={serviceId} className="w-full">
                 <CardHeader>
-                  <CardTitle>{service?.name || 'Loading...'}</CardTitle>
+                  <Link
+                    href={`/service/${serviceId}`}
+                    target="_blank"
+                    key={serviceId}
+                  >
+                    <CardTitle>{service?.name || 'Loading...'}</CardTitle>
+                  </Link>
                 </CardHeader>
                 <CardContent>
                   <Suspense

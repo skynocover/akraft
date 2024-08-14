@@ -6,16 +6,16 @@ import { Image } from './Image';
 import { ReportButton } from './ReportButton';
 import { formateTime } from '@/lib/utils/dayjs';
 
-const PostContent: React.FC<{ content: string }> = ({ content }) => (
+export const PostContent: React.FC<{ content: string }> = ({ content }) => (
   <ReactMarkdown
     remarkPlugins={[remarkGfm]}
-    className="prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
+    className="line-break prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
   >
     {content}
   </ReactMarkdown>
 );
 
-const MediaContent: React.FC<{
+export const MediaContent: React.FC<{
   imageURL: string | null;
   youtubeID: string | null;
 }> = ({ imageURL, youtubeID }) => {

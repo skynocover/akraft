@@ -51,7 +51,7 @@ export default function RootLayout({
             <main className="flex-grow container py-8">{children}</main>
             <Toaster />
             <footer className="border-t bg-background">
-              <div className="container py-6 text-center text-muted-foreground">
+              <div className="container py-2 text-center text-muted-foreground">
                 © 2024 Akraft. All rights reserved.
               </div>
             </footer>
