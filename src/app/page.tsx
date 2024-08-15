@@ -11,12 +11,14 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Header from '@/components/layout/Header';
 
 const serviceIds = ['test'];
 
 export default async function Home() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      <Header />
       <Card className="text-center">
         <CardHeader>
           <CardTitle className="text-4xl">Welcome to Akraft</CardTitle>
