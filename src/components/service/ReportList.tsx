@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Trash2, ExternalLink, FileX, MessageSquareX } from 'lucide-react';
 import axios from 'axios';
 import {
@@ -45,11 +45,8 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
-
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
+    if (!serviceId) return;
     setIsLoading(true);
     try {
       const response = await axios.get(`/api/service/${serviceId}/reports`);
@@ -59,7 +56,11 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [serviceId]);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
 
   const handleDeleteReports = async () => {
     setIsLoading(true);
