@@ -9,10 +9,14 @@ import { formateTime } from '@/lib/utils/dayjs';
 import { PostContent, MediaContent } from '../thread/Post';
 
 interface ThreadCarouselProps {
+  serviceId: string;
   threads: ThreadWithReplies[];
 }
 
-export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({ threads }) => {
+export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({
+  serviceId,
+  threads,
+}) => {
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -54,7 +58,7 @@ export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({ threads }) => {
       >
         {threads.map((thread) => (
           <Link
-            href={`/service/${'test'}/${thread.id}`}
+            href={`/service/${serviceId}/${thread.id}`}
             target="_blank"
             key={thread.id}
             className="snap-start flex-shrink-0 w-72"

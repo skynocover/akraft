@@ -26,7 +26,6 @@ export default async function Page({
       <Header />
       {service.ownerId === userId ? (
         <>
-          {' '}
           <ServiceEditor service={service} serviceId={params.serviceId} />
           <ReportList serviceId={params.serviceId} />
         </>

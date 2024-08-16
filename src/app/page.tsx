@@ -63,7 +63,7 @@ export default async function Home() {
                       </div>
                     }
                   >
-                    <ThreadCarousel threads={threads} />
+                    <ThreadCarousel serviceId={serviceId} threads={threads} />
                   </Suspense>
                 </CardContent>
               </Card>
