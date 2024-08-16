@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Akraft',
-  description: 'Unleash your creativity with Akraft, your own board',
+  description: 'Create and explore your own discussion communities',
 };
 
 export default function RootLayout({
@@ -28,7 +28,11 @@ export default function RootLayout({
             <footer className="border-t bg-background">
               <div className="container py-2 text-center text-xs text-muted-foreground">
                 © 2024 Akraft. All rights reserved.{' '}
-                <Link href="https://akraft.net" className="underline">
+                <Link
+                  href="https://akraft.net"
+                  target="_blank"
+                  className="underline"
+                >
                   Visit here
                 </Link>
               </div>

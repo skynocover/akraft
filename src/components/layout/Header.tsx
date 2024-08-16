@@ -7,7 +7,7 @@ import { ProfileButton } from '@/components/service/ProfileButton';
 
 export default function Header() {
   return (
-    <div className="container flex items-center justify-between py-4 border-b">
+    <div className="flex items-center justify-between py-4 border-b">
       <Link href="/" passHref>
         <Button variant="link" className="text-2xl font-bold p-0">
           Akraft

@@ -23,11 +23,19 @@ export default async function Home() {
         <CardHeader>
           <CardTitle className="text-4xl">Welcome to Akraft</CardTitle>
           <CardDescription className="text-xl">
-            Unleash your creativity with Akraft
+            Create and explore your own discussion communities
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button size="lg">Get Started</Button>
+          <Button size="lg">
+            <Link
+              href="https://forms.gle/QKvTohCXwZcjBi8V8"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Start Here
+            </Link>
+          </Button>
         </CardContent>
       </Card>
 
