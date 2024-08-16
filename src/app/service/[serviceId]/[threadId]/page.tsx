@@ -22,7 +22,7 @@ export default async function Page({
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl relative">
+    <div className="container mx-auto p-6 max-w-6xl relative">
       <TopLink links={service.topLinks} serviceId={params.serviceId} />
       <Title title={service.name || ''} links={service.headLinks} />
       <ThreadComponent

@@ -139,7 +139,9 @@ export default function PostCard({
 
   return (
     <Card
-      className={`mb-4 shadow-md ${isReply ? 'w-full max-w-md mx-auto' : ''}`}
+      className={`mb-4 shadow-md ${
+        isReply ? 'w-full max-w-md mx-auto' : 'mx-auto max-w-3xl'
+      }`}
     >
       <CardContent className="p-3 relative">
         {isReply && onClose && (

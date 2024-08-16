@@ -57,7 +57,7 @@ export const PostComponent: React.FC<{
         </div>
       </>
     ) : (
-      <div className="w-full md:w-2/3 mx-auto">
+      <div className="w-full md:w-1/2 mx-auto">
         <PostContent content={content} />
       </div>
     )}
@@ -86,7 +86,7 @@ export const PostMeta: React.FC<{
       <span className="font-semibold text-gray-700">{name}</span>
       <span>ID: {userId}</span>
       <span className="ml-auto flex items-center">
-        {formateTime(createdAt)} No: {threadId || replyId}
+        {formateTime(createdAt)} No: {replyId || threadId}
         <ReportButton
           serviceId={serviceId}
           threadId={threadId}
