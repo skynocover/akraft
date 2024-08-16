@@ -31,7 +31,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
   const [highlightedId, setHighlightedId] = useState<string>();
 
   const router = useRouter();
-  const visibleRepliesNum = 2;
+  const visibleRepliesNum = 5;
   const visibleReplies =
     isPreview && !showAllReplies
       ? thread.replies.slice(-visibleRepliesNum)
@@ -89,7 +89,11 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
       <CardContent className="pt-3">
         <PostComponent
           content={thread.content || ''}
-          imageURL={thread.imageToken || thread.image || ''}
+          imageURL={
+            thread.imageToken
+              ? `https://imagedelivery.net/BFt8NicDCgLDzBn7OOPidw/${thread.imageToken}/public`
+              : thread.image || ''
+          }
           youtubeID={thread.youtubeID || ''}
         />
       </CardContent>
@@ -137,7 +141,11 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
                   />
                   <div className="mt-2">
                     <PostComponent
-                      imageURL={reply.imageToken || reply.image || ''}
+                      imageURL={
+                        reply.imageToken
+                          ? `https://imagedelivery.net/BFt8NicDCgLDzBn7OOPidw/${reply.imageToken}/public`
+                          : reply.image || ''
+                      }
                       content={reply.content || ''}
                       youtubeID={reply.youtubeID || ''}
                     />

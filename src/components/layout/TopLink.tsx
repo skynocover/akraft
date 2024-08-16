@@ -21,6 +21,7 @@ export default function TopLink({ serviceId, links }: TopLinkProps) {
         <a
           key={index}
           href={link.url}
+          target="_blank"
           className="text-gray-400 hover:text-gray-600 flex items-center"
         >
           {link.name} <ExternalLink className="ml-1 h-3 w-3" />

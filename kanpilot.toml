@@ -29,19 +29,8 @@ name = "TODO"
   linkCommits = [ ]
 
   [[processes.tasks]]
-  id = "vvfajdc1pvmd8tnsrs4r7v3b"
-  title = "注意header"
-  description = ""
-  tag = "backlog"
-  linkFiles = [ ]
-  dueDate = ""
-  checkList = [ ]
-  priority = ""
-  linkCommits = [ ]
-
-  [[processes.tasks]]
-  id = "seoioblstejqnmlq4oi310oz"
-  title = "注意thread顯示時的markdown換行"
+  id = "rpmr89xd7584q53e00qgpqd4"
+  title = "強制sage的功能"
   description = ""
   tag = "backlog"
   linkFiles = [ ]
@@ -57,6 +46,28 @@ name = "In Progress"
   [[processes.tasks]]
   id = "y8u03e8jqoqvgvifb1i3k639"
   title = "發文的如果是版主 會有提醒"
+  description = ""
+  tag = "backlog"
+  linkFiles = [ ]
+  dueDate = ""
+  checkList = [ ]
+  priority = ""
+  linkCommits = [ ]
+
+  [[processes.tasks]]
+  id = "vvfajdc1pvmd8tnsrs4r7v3b"
+  title = "注意header"
+  description = ""
+  tag = "backlog"
+  linkFiles = [ ]
+  dueDate = ""
+  checkList = [ ]
+  priority = ""
+  linkCommits = [ ]
+
+  [[processes.tasks]]
+  id = "seoioblstejqnmlq4oi310oz"
+  title = "注意thread顯示時的markdown換行"
   description = ""
   tag = "backlog"
   linkFiles = [ ]
