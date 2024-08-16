@@ -28,12 +28,12 @@ export const MediaContent: React.FC<{
   }
   if (youtubeID) {
     return (
-      <div className="aspect-w-16 aspect-h-9">
+      <div className="relative w-full pt-[56.25%]">
         <iframe
           src={`https://www.youtube.com/embed/${youtubeID}`}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
-          className="rounded-lg w-full h-full"
+          className="absolute top-0 left-0 w-full h-full rounded-lg"
         ></iframe>
       </div>
     );
@@ -49,7 +49,7 @@ export const PostComponent: React.FC<{
   <div className="flex flex-col md:flex-row md:space-x-4">
     {imageURL || youtubeID ? (
       <>
-        <div className="w-full md:w-1/2 mb-4 md:mb-0">
+        <div className="w-full md:w-1/2 mb-4 md:mb-0 h-auto">
           <MediaContent imageURL={imageURL} youtubeID={youtubeID} />
         </div>
         <div className="w-full md:w-1/2">
