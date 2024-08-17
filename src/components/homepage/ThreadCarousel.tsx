@@ -57,16 +57,14 @@ export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {threads.map((thread) => (
-          <Link
-            href={`/service/${serviceId}/${thread.id}`}
-            target="_blank"
+          <Card
             key={thread.id}
-            className="snap-start flex-shrink-0 w-72"
+            className="snap-start flex-shrink-0 w-72 h-full hover:shadow-lg transition-shadow duration-300"
           >
-            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
-              {renderPreview(thread)}
+            {renderPreview(thread)}
+            <Link href={`/service/${serviceId}/${thread.id}`} target="_blank">
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2 line-clamp-2">
+                <h3 className="text-lg font-semibold mb-2 line-clamp-1">
                   {thread.title}
                 </h3>
               </CardContent>
@@ -75,8 +73,8 @@ export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({
                 <span className="mx-2">•</span>
                 <span>{thread.replies.length} replies</span>
               </CardFooter>
-            </Card>
-          </Link>
+            </Link>
+          </Card>
         ))}
       </div>
       <Button
