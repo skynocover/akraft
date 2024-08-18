@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 
-import { getService, getThreads } from '@/lib/xata/threads';
+import { getService, getThreadsWithReplyCount } from '@/lib/xata/threads';
 import { ThreadCarousel } from '@/components/homepage/ThreadCarousel';
 import {
   Card,
@@ -43,7 +43,10 @@ export default async function Home() {
         <div className="space-y-6">
           {serviceIds.map(async (serviceId) => {
             const service = await getService({ serviceId });
-            const { threads } = await getThreads({ serviceId, pageSize: 8 });
+            const threads = await getThreadsWithReplyCount({
+              serviceId,
+              pageSize: 8,
+            });
             return (
               <Card key={serviceId} className="w-full">
                 <CardHeader>

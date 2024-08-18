@@ -1,5 +1,5 @@
 import { XataClient, ServicesRecord } from './xata';
-import { ThreadWithReplies } from '../types/thread';
+import { ThreadWithReplies, ThreadWithReplyCount } from '../types/thread';
 
 interface IGetThreads {
   serviceId: string;
@@ -136,5 +136,42 @@ export const getThread = async ({
   } catch (error) {
     console.error('Error fetching thread with replies:', error);
     return null;
+  }
+};
+
+// for home page
+export const getThreadsWithReplyCount = async ({
+  serviceId,
+  pageSize = 10,
+}: IGetThreads): Promise<ThreadWithReplyCount[]> => {
+  try {
+    const xata = new XataClient({
+      branch: serviceId,
+      apiKey: process.env.XATA_API_KEY,
+    });
+
+    const { records: threads } = await xata.db.threads
+      .sort('replyAt', 'desc')
+      .getPaginated({ pagination: { size: pageSize } });
+
+    const threadsWithReplies: ThreadWithReplyCount[] = await Promise.all(
+      threads.map(async (thread) => {
+        const { aggs } = await xata.db.replies.aggregate(
+          { totalCount: { count: '*' } },
+          { thread: { id: thread.id } },
+        );
+
+        return {
+          ...thread,
+          image: thread.image?.url,
+          replyCount: aggs.totalCount,
+        };
+      }),
+    );
+
+    return threadsWithReplies;
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 };

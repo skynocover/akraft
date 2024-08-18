@@ -14,6 +14,12 @@ export type ThreadWithReplies = WithoutImage<ThreadsRecord> &
     })[];
   };
 
+export type ThreadWithReplyCount = WithoutImage<ThreadsRecord> &
+  XataRecord & {
+    image?: string;
+    replyCount: number;
+  };
+
 export type IReply = WithoutImage<RepliesRecord> &
   XataRecord & {
     image?: string;

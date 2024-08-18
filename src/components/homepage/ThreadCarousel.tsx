@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ThreadWithReplies } from '@/lib/types/thread';
+import { ThreadWithReplyCount } from '@/lib/types/thread';
 import { formateTime } from '@/lib/utils/dayjs';
 import { PostContent, MediaContent } from '../thread/Post';
 
 interface ThreadCarouselProps {
   serviceId: string;
-  threads: ThreadWithReplies[];
+  threads: ThreadWithReplyCount[];
 }
 
 export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({
@@ -30,7 +30,7 @@ export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({
     }
   };
 
-  const renderPreview = (thread: ThreadWithReplies) => {
+  const renderPreview = (thread: ThreadWithReplyCount) => {
     if (thread.image || thread.youtubeID) {
       return (
         <div className="h-40 w-full overflow-hidden">
@@ -71,7 +71,7 @@ export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({
               <CardFooter className="text-xs text-muted-foreground">
                 <span>{formateTime(thread.xata.createdAt)}</span>
                 <span className="mx-2">•</span>
-                <span>{thread.replies.length} replies</span>
+                <span>{thread.replyCount} replies</span>
               </CardFooter>
             </Link>
           </Card>
