@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -47,14 +47,22 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // 禁用瀏覽器的滾動恢復功能
+      const originalScrollRestoration = window.history.scrollRestoration;
+      window.history.scrollRestoration = 'manual';
+
       const hash = window.location.hash;
-      if (hash) {
+      if (hash && !highlightedId) {
         setHighlightedId(hash.substring(1));
         const element = document.querySelector(hash);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
       }
+      // 在 useEffect cleanup 中恢復原本的滾動恢復功能
+      return () => {
+        window.history.scrollRestoration = originalScrollRestoration;
+      };
     }
   }, []);
 

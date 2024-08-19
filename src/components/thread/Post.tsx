@@ -6,49 +6,116 @@ import { Image } from './Image';
 import { ReportButton } from './ReportButton';
 import { formateTime } from '@/lib/utils/dayjs';
 
-export const PostContent: React.FC<{ content: string }> = ({ content }) => (
-  <ReactMarkdown
-    remarkPlugins={[remarkGfm]}
-    components={{
-      h1: ({ node, ...props }) => (
-        <h1 className="text-3xl font-bold mb-4" {...props} />
-      ),
-      h2: ({ node, ...props }) => (
-        <h2 className="text-2xl font-semibold mb-3" {...props} />
-      ),
-      h3: ({ node, ...props }) => (
-        <h3 className="text-xl font-semibold mb-2" {...props} />
-      ),
-      p: ({ node, ...props }) => <p className="mb-4" {...props} />,
-      ul: ({ node, ...props }) => (
-        <ul className="list-disc pl-5 mb-4" {...props} />
-      ),
-      ol: ({ node, ...props }) => (
-        <ol className="list-decimal pl-5 mb-4" {...props} />
-      ),
-      li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-      a: ({ node, href, children, ...props }) => (
-        <a
-          href={href}
-          className="text-blue-500 hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {children}
-        </a>
-      ),
-      blockquote: ({ node, ...props }) => (
-        <blockquote
-          className="border-l-4 border-gray-300 pl-4 italic my-4"
-          {...props}
-        />
-      ),
-    }}
-    className="line-break prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
-  >
-    {content}
-  </ReactMarkdown>
-);
+// for scroll to No.
+const extractContentFromChildren = (
+  children: React.ReactNode,
+): { content: string; afterNewline: any } => {
+  if (
+    children &&
+    Array.isArray(children) &&
+    React.isValidElement(children[1])
+  ) {
+    const element = children[1] as React.ReactElement;
+
+    if (
+      Array.isArray(element.props.children) &&
+      React.isValidElement(element.props.children[1])
+    ) {
+      // 兩層是因為要抓到 >> 後面的數字
+      const nestedElement = element.props.children[1] as React.ReactElement;
+      if (typeof nestedElement.props.children === 'string') {
+        const [firstLine, ...rest] = nestedElement.props.children.split('\r\n');
+        return {
+          content: firstLine,
+          afterNewline: rest.length > 0 ? `\r\n${rest.join('\r\n')}` : '',
+        };
+      } else if (Array.isArray(nestedElement.props.children)) {
+        // 如果下一行有文字 則要抓第二個
+        if (React.isValidElement(element.props.children[1])) {
+          const child = element.props.children[1] as React.ReactElement;
+          return {
+            content: child.props.children[0],
+            afterNewline: child.props.children[1],
+          };
+        }
+      }
+    }
+  }
+  return { content: '', afterNewline: '' };
+};
+
+export const PostContent: React.FC<{ content: string }> = ({ content }) => {
+  const handleBlockquoteClick = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        h1: ({ node, ...props }) => (
+          <h1 className="text-3xl font-bold mb-4" {...props} />
+        ),
+        h2: ({ node, ...props }) => (
+          <h2 className="text-2xl font-semibold mb-3" {...props} />
+        ),
+        h3: ({ node, ...props }) => (
+          <h3 className="text-xl font-semibold mb-2" {...props} />
+        ),
+        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+        ul: ({ node, ...props }) => (
+          <ul className="list-disc pl-5 mb-4" {...props} />
+        ),
+        ol: ({ node, ...props }) => (
+          <ol className="list-decimal pl-5 mb-4" {...props} />
+        ),
+        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+        a: ({ node, href, children, ...props }) => (
+          <a
+            href={href}
+            className="text-blue-500 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {children}
+          </a>
+        ),
+        blockquote: ({ node, children, ...props }) => {
+          const { content, afterNewline } =
+            extractContentFromChildren(children);
+
+          if (content.startsWith('rec_')) {
+            return (
+              <>
+                <p
+                  onClick={() => handleBlockquoteClick(content)}
+                  className="text-blue-500 transition-colors duration-300 hover:underline cursor-pointer"
+                >
+                  {'>> ' + content + '\n'}
+                </p>
+                {afterNewline}
+              </>
+            );
+          }
+          return (
+            <blockquote
+              className={`border-l-4 border-gray-300 pl-4 italic my-1`}
+              {...props}
+            >
+              {children}
+            </blockquote>
+          );
+        },
+      }}
+      className="line-break prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
+    >
+      {content}
+    </ReactMarkdown>
+  );
+};
 
 export const MediaContent: React.FC<{
   imageURL: string | null;
@@ -117,7 +184,10 @@ export const PostMeta: React.FC<{
   reportedIp,
 }) => {
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+    <div
+      className="flex flex-wrap items-center gap-2 text-sm text-gray-500"
+      id={replyId || threadId}
+    >
       <span className="font-semibold text-gray-700">{name}</span>
       <span>ID: {userId}</span>
       <span className="ml-auto flex items-center">
