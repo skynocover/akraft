@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import { Image } from './Image';
 import { ReportButton } from './ReportButton';
 import { formateTime } from '@/lib/utils/dayjs';
+import { ReplyNoButton } from './ReplyButton';
 
 // for scroll to No.
 const extractContentFromChildren = (
@@ -174,6 +175,7 @@ export const PostMeta: React.FC<{
   replyId?: string;
   serviceId: string;
   reportedIp: string;
+  serviceOwnerId: string;
 }> = ({
   name,
   userId,
@@ -182,6 +184,7 @@ export const PostMeta: React.FC<{
   replyId,
   serviceId,
   reportedIp,
+  serviceOwnerId,
 }) => {
   return (
     <div
@@ -191,7 +194,13 @@ export const PostMeta: React.FC<{
       <span className="font-semibold text-gray-700">{name}</span>
       <span>ID: {userId}</span>
       <span className="ml-auto flex items-center">
-        {formateTime(createdAt)} No: {replyId || threadId}
+        {formateTime(createdAt)}
+        <ReplyNoButton
+          replyId={replyId || ''}
+          threadId={threadId || ''}
+          serviceId={serviceId}
+          serviceOwnerId={serviceOwnerId}
+        />
         <ReportButton
           serviceId={serviceId}
           threadId={threadId}

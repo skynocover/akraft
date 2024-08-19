@@ -98,6 +98,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           threadId={thread.id}
           serviceId={serviceId}
           reportedIp={thread.userIp || ''}
+          serviceOwnerId={serviceOwnerId}
         />
       </CardHeader>
       <CardContent className="pt-3">
@@ -152,6 +153,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
                     replyId={reply.id}
                     serviceId={serviceId}
                     reportedIp={reply.userIp || ''}
+                    serviceOwnerId={serviceOwnerId}
                   />
                   <div className="mt-2">
                     <PostComponent

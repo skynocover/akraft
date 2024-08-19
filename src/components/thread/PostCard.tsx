@@ -22,22 +22,23 @@ interface PostCardProps {
   description?: string;
   serviceId: string;
   threadId?: string;
-  isReply?: boolean;
   onClose?: () => void;
   serviceOwnerId: string;
+  initInput?: string;
 }
 
 export default function PostCard({
   description,
   serviceId,
   threadId,
-  isReply = false,
   onClose,
   serviceOwnerId,
+  initInput,
 }: PostCardProps) {
+  const isReply = !!onClose;
   const session = useSession();
   const fileInputID = `dropzone-file-${isReply ? `${threadId}-reply` : 'page'}`;
-  const [markdownInfo, setMarkdownInfo] = useState('');
+  const [markdownInfo, setMarkdownInfo] = useState(initInput || '');
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
   const [isPreview, setIsPreview] = useState(false);
@@ -198,7 +199,9 @@ export default function PostCard({
             </Button>
 
             {isPreview ? (
-              <PostContent content={markdownInfo} />
+              <div className="min-h-40">
+                <PostContent content={markdownInfo} />
+              </div>
             ) : (
               <Textarea
                 placeholder="Content"
