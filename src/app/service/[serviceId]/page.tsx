@@ -38,6 +38,7 @@ export default async function Page({
       <PostCard
         serviceId={params.serviceId}
         description={service.description || ''}
+        serviceOwnerId={service.ownerId || ''}
       />
       <Pagination
         totalPages={totalPages}
@@ -50,6 +51,7 @@ export default async function Page({
           serviceId={params.serviceId}
           thread={thread}
           isPreview={true}
+          serviceOwnerId={service.ownerId || ''}
         />
       ))}
       <Pagination

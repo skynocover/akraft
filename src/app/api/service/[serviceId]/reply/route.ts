@@ -5,7 +5,7 @@ import { fileToBase64, generateUserId } from '@/lib/utils/threads';
 import { withPostCheck, PostCheckContext } from '@/lib/middleware/postCheck';
 
 const post = async (req: NextRequest, context: PostCheckContext) => {
-  const { xata } = context;
+  const { xata, isOwner } = context;
   const formData = await req.formData();
   const name = formData.get('name') as string;
   const threadId = formData.get('threadId') as string;
@@ -24,7 +24,7 @@ const post = async (req: NextRequest, context: PostCheckContext) => {
   };
 
   const ip = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';
-  const userId = generateUserId(ip);
+  const userId = isOwner ? 'admin' : generateUserId(ip);
 
   try {
     validatePostInput(input);

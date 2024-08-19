@@ -29,6 +29,7 @@ export default async function Page({
         serviceId={params.serviceId}
         thread={thread}
         isPreview={false}
+        serviceOwnerId={service.ownerId || ''}
       />
     </div>
   );

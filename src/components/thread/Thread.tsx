@@ -20,12 +20,14 @@ interface ThreadComponentProps {
   serviceId: string;
   thread: ThreadWithReplies;
   isPreview: boolean;
+  serviceOwnerId: string;
 }
 
 const ThreadComponent: React.FC<ThreadComponentProps> = ({
   thread,
   isPreview,
   serviceId,
+  serviceOwnerId,
 }) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
   const [highlightedId, setHighlightedId] = useState<string>();
@@ -74,7 +76,11 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           >
             {thread.title}
           </CardTitle>
-          <ReplyButton serviceId={serviceId} threadId={thread.id} />
+          <ReplyButton
+            serviceId={serviceId}
+            threadId={thread.id}
+            serviceOwnerId={serviceOwnerId}
+          />
         </div>
 
         <PostMeta

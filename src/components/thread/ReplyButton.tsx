@@ -8,9 +8,14 @@ import PostCard from './PostCard';
 interface IReplyModal {
   serviceId: string;
   threadId: string;
+  serviceOwnerId: string;
 }
 
-export const ReplyButton: React.FC<IReplyModal> = ({ serviceId, threadId }) => {
+export const ReplyButton: React.FC<IReplyModal> = ({
+  serviceId,
+  threadId,
+  serviceOwnerId,
+}) => {
   const [showReplyModal, setShowReplyModal] = useState(false);
 
   return (
@@ -31,6 +36,7 @@ export const ReplyButton: React.FC<IReplyModal> = ({ serviceId, threadId }) => {
               threadId={threadId}
               isReply={true}
               onClose={() => setShowReplyModal(false)}
+              serviceOwnerId={serviceOwnerId}
             />
           </div>
         </div>

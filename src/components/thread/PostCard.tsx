@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { validatePostInput, PostInput } from '@/lib/utils/threads';
+import { useSession } from 'next-auth/react';
 
 interface PostCardProps {
   description?: string;
@@ -21,6 +22,7 @@ interface PostCardProps {
   threadId?: string;
   isReply?: boolean;
   onClose?: () => void;
+  serviceOwnerId: string;
 }
 
 export default function PostCard({
@@ -29,7 +31,9 @@ export default function PostCard({
   threadId,
   isReply = false,
   onClose,
+  serviceOwnerId,
 }: PostCardProps) {
+  const session = useSession();
   const fileInputID = `dropzone-file-${isReply ? `${threadId}-reply` : 'page'}`;
   const [markdownInfo, setMarkdownInfo] = useState('');
   const [title, setTitle] = useState('');
@@ -41,6 +45,8 @@ export default function PostCard({
   const [isLoading, setIsLoading] = useState(false);
   const [isSage, setIsSage] = useState(false);
   const router = useRouter();
+
+  const isOwner = session.data?.user?.id === serviceOwnerId;
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdownInfo(e.target.value);
@@ -277,9 +283,9 @@ export default function PostCard({
                   Submitting...
                 </>
               ) : isReply ? (
-                'Submit Reply'
+                'Submit reply' + (isOwner ? ' as admin' : '')
               ) : (
-                'Submit'
+                'Submit' + (isOwner ? ' as admin' : '')
               )}
             </Button>
             {isReply && (
