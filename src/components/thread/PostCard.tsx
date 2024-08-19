@@ -16,6 +16,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { validatePostInput, PostInput } from '@/lib/utils/threads';
 import { useSession } from 'next-auth/react';
 
+import { PostContent } from './Post';
+
 interface PostCardProps {
   description?: string;
   serviceId: string;
@@ -196,12 +198,7 @@ export default function PostCard({
             </Button>
 
             {isPreview ? (
-              <Markdown
-                className="text-sm p-3 whitespace-pre-wrap border min-h-40"
-                remarkPlugins={[remarkGfm]}
-              >
-                {markdownInfo}
-              </Markdown>
+              <PostContent content={markdownInfo} />
             ) : (
               <Textarea
                 placeholder="Content"
