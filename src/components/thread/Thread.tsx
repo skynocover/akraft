@@ -1,7 +1,7 @@
 'use client';
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import Link from 'next/link';
 
 import {
   Card,
@@ -32,18 +32,11 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
   const [showAllReplies, setShowAllReplies] = useState(false);
   const [highlightedId, setHighlightedId] = useState<string>();
 
-  const router = useRouter();
   const visibleRepliesNum = 5;
   const visibleReplies =
     isPreview && !showAllReplies
       ? thread.replies.slice(-visibleRepliesNum)
       : thread.replies;
-
-  const handleTitleClick = () => {
-    if (isPreview) {
-      router.push(`/service/${serviceId}/${thread.id}`);
-    }
-  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -76,13 +69,19 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-center">
           <CardTitle
-            className={`text-2xl font-bold text-center ${
-              isPreview ? 'cursor-pointer hover:underline' : ''
-            }`}
-            onClick={handleTitleClick}
+            className={'text-2xl font-bold text-center'}
             title={isPreview ? 'Click to view full thread' : ''}
           >
-            {thread.title}
+            {isPreview ? (
+              <Link
+                className="cursor-pointer hover:underline"
+                href={`/service/${serviceId}/${thread.id}`}
+              >
+                {thread.title}
+              </Link>
+            ) : (
+              <>{thread.title}</>
+            )}
           </CardTitle>
           <ReplyButton
             serviceId={serviceId}

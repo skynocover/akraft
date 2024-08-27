@@ -11,11 +11,10 @@ export interface PostInput {
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
-export function validatePostInput(input: PostInput) {
+export const validatePostInput = (input: PostInput) => {
   const contentFilled = !!input.content || input.content?.trim() !== '';
   const youtubeLinkFilled = !!input.youtubeLink;
   const imageFilled = !!input.image;
-  console.log({ contentFilled, youtubeLinkFilled, imageFilled });
 
   if (!contentFilled && !youtubeLinkFilled && !imageFilled) {
     throw new Error(
@@ -47,7 +46,7 @@ export function validatePostInput(input: PostInput) {
   }
 
   return;
-}
+};
 
 export const extractYouTubeVideoId = (url: string): string | null => {
   const regex =

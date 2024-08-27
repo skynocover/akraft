@@ -58,17 +58,17 @@ export const ReportButton: React.FC<ReportModalProps> = ({
       <Button
         variant="ghost"
         size="icon"
-        className="ml-2 h-6 w-6"
+        className="ml-1 h-6 w-6"
         onClick={() => setIsReportModalOpen(true)}
         title="Report this post"
       >
-        <Flag className="h-4 w-4" />
+        <Flag className="h-4 w-4" color="red" />
       </Button>
 
       <Dialog open={isReportModalOpen} onOpenChange={handleClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Report Post</DialogTitle>
+            <DialogTitle>Report</DialogTitle>
           </DialogHeader>
           <Textarea
             placeholder="Enter reason for reporting"

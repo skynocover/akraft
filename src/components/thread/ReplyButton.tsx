@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import PostCard from './PostCard';
@@ -23,10 +23,10 @@ export const ReplyButton: React.FC<IReplyModal> = ({
       <Button
         variant="ghost"
         size="icon"
-        className="mb-1"
+        className="hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200"
         onClick={() => setShowReplyModal(true)}
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageSquare className="h-6 w-6" />
       </Button>
       {showReplyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
