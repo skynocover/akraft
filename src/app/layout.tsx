@@ -5,6 +5,7 @@ import Link from 'next/link';
 import './globals.css';
 
 import { Toaster } from '@/components/ui/toaster';
+import GoogleAdsense from '@/components/layout/GoogleAdsense';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <GoogleAdsense />
         <SessionProvider>
           <div className="flex flex-col min-h-screen">
             <main className="flex-grow container ">{children}</main>
