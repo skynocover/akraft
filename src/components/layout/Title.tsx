@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { LinkItem } from '@/lib/types/link';
+import GoogleAd from '@/components/layout/GoogleAd';
 
 interface TitleProps {
   title: string;
@@ -25,6 +26,7 @@ export default function Title({ title, links }: TitleProps) {
           </Link>
         ))}
       </div>
+      <GoogleAd />
     </>
   );
 }
