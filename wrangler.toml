@@ -1,0 +1,8 @@
+main = ".worker-next/index.mjs"
+name = "akraft"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+assets = { directory = ".worker-next/assets", binding = "ASSETS" }
+
+send_metrics = false
+minify = true
