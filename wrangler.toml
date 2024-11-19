@@ -6,6 +6,8 @@ assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 
 minify = true
 
+routes = [{ pattern = "test.akraft.net", custom_domain = true }]
+
 # wrangler.toml (wrangler v3.79.0^)
 # [observability.logs]
 
