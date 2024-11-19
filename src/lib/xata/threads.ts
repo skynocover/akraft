@@ -1,3 +1,5 @@
+'use server';
+
 import { XataClient, ServicesRecord } from './xata';
 import { ThreadWithReplies, ThreadWithReplyCount } from '../types/thread';
 

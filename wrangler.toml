@@ -4,5 +4,10 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 
-send_metrics = false
 minify = true
+
+# wrangler.toml (wrangler v3.79.0^)
+# [observability.logs]
+
+[observability]
+enabled = true
