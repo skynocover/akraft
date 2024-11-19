@@ -8,6 +8,7 @@ import { formateTime } from '@/lib/utils/dayjs';
 import { ReplyNoButton } from './ReplyButton';
 
 // for scroll to No.
+// 要抓的是 >> 因此 > 不會被抓到
 const extractContentFromChildren = (
   children: React.ReactNode,
 ): { content: string; afterNewline: any } => {
@@ -34,9 +35,11 @@ const extractContentFromChildren = (
         // 如果下一行有文字 則要抓第二個
         if (React.isValidElement(element.props.children[1])) {
           const child = element.props.children[1] as React.ReactElement;
+          const [firstLine, ...rest] = child.props.children[0].split('\r\n');
+
           return {
-            content: child.props.children[0],
-            afterNewline: child.props.children[1],
+            content: firstLine,
+            afterNewline: rest.length > 0 ? `\r\n${rest.join('\r\n')}` : '',
           };
         }
       }
@@ -101,6 +104,29 @@ export const PostContent: React.FC<{ content: string }> = ({ content }) => {
               </>
             );
           }
+
+          // 如果blockquote 裡面有換行 則需要另外處理
+          for (const child of children as React.ReactNode[]) {
+            if (!React.isValidElement(child)) continue;
+
+            const content = child.props.children;
+            if (typeof content !== 'string' || !content.includes('\r\n'))
+              continue;
+
+            const [firstLine, ...rest] = content.split('\r\n');
+            return (
+              <>
+                <blockquote
+                  className="border-l-4 border-gray-300 pl-4 italic my-1"
+                  {...props}
+                >
+                  {firstLine}
+                </blockquote>
+                {rest}
+              </>
+            );
+          }
+
           return (
             <blockquote
               className={`border-l-4 border-gray-300 pl-4 italic my-1`}
