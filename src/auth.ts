@@ -8,6 +8,7 @@ import { XataClient, ServicesRecord } from '@/lib/xata/xata';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [Google],
+  secret: process.env.NEXTAUTH_SECRET,
 
   logger: {
     // error: (code, ...message) => {
