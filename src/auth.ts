@@ -11,6 +11,37 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   // workers 讀取不到網址 因此需要設定nextauth url 並明示指定secret
   secret: process.env.NEXTAUTH_SECRET,
 
+  // OAuth 需要的Edge Runtime 配置
+  trustHost: true,
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+      },
+    },
+    callbackUrl: {
+      name: `__Secure-next-auth.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+      },
+    },
+    csrfToken: {
+      name: `__Host-next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+      },
+    },
+  },
+
   // edge runtime 沒辦法處理crypto 因此需要明示指定session 的設定
   jwt: {
     encode: async ({ secret, token }) => {
