@@ -8,7 +8,26 @@ import { XataClient, ServicesRecord } from '@/lib/xata/xata';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [Google],
+  // workers 讀取不到網址 因此需要設定nextauth url 並明示指定secret
   secret: process.env.NEXTAUTH_SECRET,
+
+  // edge runtime 沒辦法處理crypto 因此需要明示指定session 的設定
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
+
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
 
   logger: {
     // error: (code, ...message) => {
