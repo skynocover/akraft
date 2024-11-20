@@ -12,21 +12,33 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 
   // edge runtime 沒辦法處理crypto 因此需要明示指定session 的設定
-  cookies: {
-    sessionToken: {
-      name: 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
+  jwt: {
+    encode: async ({ secret, token }) => {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(JSON.stringify(token));
+      const key = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(secret as string),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+      );
+      const signature = await crypto.subtle.sign('HMAC', key, data);
+      // 使用 Array.from 替代 spread operator
+      const signatureArray = Array.from(new Uint8Array(signature));
+      return `${btoa(JSON.stringify(token))}.${btoa(
+        String.fromCharCode.apply(null, signatureArray),
+      )}`;
     },
-  },
-
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    decode: async ({ secret, token }) => {
+      if (!token) return null;
+      const [payload, signature] = token.split('.');
+      const decoder = new TextDecoder();
+      const data = decoder.decode(
+        Uint8Array.from(atob(payload), (c) => c.charCodeAt(0)),
+      );
+      return JSON.parse(data);
+    },
   },
 
   logger: {
