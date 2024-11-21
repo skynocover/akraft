@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
 import { Button } from '@/components/ui/button';
 import { User, LogIn } from 'lucide-react';
 import {
@@ -12,17 +13,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/lib/firebase/firebaseContext';
 
 export const ProfileButton: React.FC = () => {
-  const { data: session, status } = useSession();
-
-  if (status === 'loading') {
+  const { user, loading, googleLogin, logout } = useAuth();
+  const router = useRouter();
+  if (loading) {
     return <Button variant="outline">Loading...</Button>;
   }
 
-  if (status === 'unauthenticated') {
+  if (!user) {
     return (
-      <Button variant="outline" onClick={() => signIn()}>
+      <Button variant="outline" onClick={googleLogin}>
         <LogIn className="mr-2 h-4 w-4" />
         Login
       </Button>
@@ -34,14 +36,14 @@ export const ProfileButton: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
           <User className="mr-2 h-4 w-4" />
-          {session?.user?.name}
+          {user?.displayName}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>UserID: {session?.user?.id}</DropdownMenuLabel>
+        <DropdownMenuLabel>UserID: {user?.uid}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

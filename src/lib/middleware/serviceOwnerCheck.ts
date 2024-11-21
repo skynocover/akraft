@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { NextAuthRequest, ServiceRoleContext, handleRole } from '@/auth';
+import { FirebaseAuthRequest, ServiceRoleContext, handleRole } from '@/auth';
 
 export const withServiceOwnerCheck = (handler: Function) => {
   return handleRole(
-    async (req: NextAuthRequest, context: ServiceRoleContext) => {
+    async (req: FirebaseAuthRequest, context: ServiceRoleContext) => {
       if (!context.isOwner) {
         return NextResponse.json(
           { error: 'You are not owner of service' },

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { NextAuthRequest, handleRole, ServiceRoleContext } from '@/auth';
+import { FirebaseAuthRequest, handleRole, ServiceRoleContext } from '@/auth';
 
 export const withPostCheck = (handler: Function) => {
   return handleRole(
-    async (req: NextAuthRequest, context: ServiceRoleContext) => {
+    async (req: FirebaseAuthRequest, context: ServiceRoleContext) => {
       const { service, xata } = context;
 
       const userIp = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';

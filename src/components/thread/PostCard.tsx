@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { validatePostInput, PostInput } from '@/lib/utils/threads';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/lib/firebase/firebaseContext';
 
 import { PostContent } from './Post';
 
@@ -36,7 +36,7 @@ export default function PostCard({
   initInput,
 }: PostCardProps) {
   const isReply = !!onClose;
-  const session = useSession();
+  const { user } = useAuth();
   const fileInputID = `dropzone-file-${isReply ? `${threadId}-reply` : 'page'}`;
   const [markdownInfo, setMarkdownInfo] = useState(initInput || '');
   const [title, setTitle] = useState('');
@@ -49,7 +49,7 @@ export default function PostCard({
   const [isSage, setIsSage] = useState(false);
   const router = useRouter();
 
-  const isOwner = session.data?.user?.id === serviceOwnerId;
+  const isOwner = user?.uid === serviceOwnerId;
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdownInfo(e.target.value);

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { SessionProvider } from 'next-auth/react';
 import Link from 'next/link';
 import './globals.css';
 
 import { Toaster } from '@/components/ui/toaster';
 import GoogleAdsense from '@/components/layout/GoogleAdsense';
 import GoogleAdRepair from '@/components/layout/GoogleAdRepair';
+import { AuthProvider } from '@/lib/firebase/firebaseContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,7 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <GoogleAdsense />
         <GoogleAdRepair />
-        <SessionProvider>
+        <AuthProvider>
           <div className="flex flex-col min-h-screen">
             <main className="flex-grow container ">{children}</main>
             <Toaster />
@@ -42,7 +42,7 @@ export default function RootLayout({
               </div>
             </footer>
           </div>
-        </SessionProvider>
+        </AuthProvider>
       </body>
     </html>
   );

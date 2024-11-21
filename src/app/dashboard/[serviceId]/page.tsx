@@ -1,30 +1,48 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
+import { useAuth } from '@/lib/firebase/firebaseContext';
 
 import { getService } from '@/lib/xata/threads';
 
 import ServiceEditor from '@/components/service/serviceEditor';
 import ReportList from '@/components/service/ReportList';
 import Header from '@/components/layout/Header';
-import { auth } from '@/auth';
 
-export default async function Page({
-  params,
-}: {
-  params: { serviceId: string };
-}) {
-  const service = await getService({ serviceId: params.serviceId });
+export default function Page({ params }: { params: { serviceId: string } }) {
+  const [service, setService] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        const serviceData = await getService({ serviceId: params.serviceId });
+        setService(serviceData);
+      } catch (error) {
+        console.error('Error fetching service:', error);
+      }
+
+      setLoading(false);
+    };
+
+    fetchService();
+  }, [params.serviceId]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   if (!service) {
     return notFound();
   }
 
-  const session = await auth();
-  const userId = session?.user?.id;
-
   return (
     <div className="container mx-auto space-y-4 max-w-4xl">
       <Header />
-      {service.ownerId === userId ? (
+      {service.ownerId === user?.uid ? (
         <>
           <ServiceEditor service={service} serviceId={params.serviceId} />
           <ReportList serviceId={params.serviceId} />
