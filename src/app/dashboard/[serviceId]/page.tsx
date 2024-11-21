@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { useAuth } from '@/lib/firebase/firebaseContext';
-
+import { useAuth } from '@/lib/supabase/supbaseContext';
 import { getService } from '@/lib/xata/threads';
 
 import ServiceEditor from '@/components/service/serviceEditor';
@@ -42,7 +41,7 @@ export default function Page({ params }: { params: { serviceId: string } }) {
   return (
     <div className="container mx-auto space-y-4 max-w-4xl">
       <Header />
-      {service.ownerId === user?.uid ? (
+      {service.ownerId === user?.id ? (
         <>
           <ServiceEditor service={service} serviceId={params.serviceId} />
           <ReportList serviceId={params.serviceId} />

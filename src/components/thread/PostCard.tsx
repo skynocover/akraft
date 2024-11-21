@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { validatePostInput, PostInput } from '@/lib/utils/threads';
-import { useAuth } from '@/lib/firebase/firebaseContext';
+import { useAuth } from '@/lib/supabase/supbaseContext';
 
 import { PostContent } from './Post';
 
@@ -36,7 +36,7 @@ export default function PostCard({
   initInput,
 }: PostCardProps) {
   const isReply = !!onClose;
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const fileInputID = `dropzone-file-${isReply ? `${threadId}-reply` : 'page'}`;
   const [markdownInfo, setMarkdownInfo] = useState(initInput || '');
   const [title, setTitle] = useState('');
@@ -49,7 +49,7 @@ export default function PostCard({
   const [isSage, setIsSage] = useState(false);
   const router = useRouter();
 
-  const isOwner = user?.uid === serviceOwnerId;
+  const isOwner = user?.id === serviceOwnerId;
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdownInfo(e.target.value);
@@ -109,13 +109,18 @@ export default function PostCard({
         formData.append('image', file);
       }
 
+      const accessToken = await getAccessToken();
+
       await axios.post(
         isReply
           ? `/api/service/${serviceId}/reply`
           : `/api/service/${serviceId}/thread`,
         formData,
         {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
       );
 

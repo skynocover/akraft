@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Save, X } from 'lucide-react';
+import { useAuth } from '@/lib/supabase/supbaseContext';
 
 import { LinkItem } from '@/lib/types/link';
 import { ServicesRecord } from '@/lib/xata/xata';
@@ -34,6 +35,7 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   serviceId,
 }) => {
   const router = useRouter();
+  const { getAccessToken } = useAuth();
   const [editedService, setEditedService] = useState<ServicesRecord>(service);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -59,12 +61,15 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      const accessToken = await getAccessToken();
       const serviceToSave: ServicesRecord = {
         ...editedService,
         forbidContents: editedService.forbidContents?.filter((item) => !!item),
         blockedIPs: editedService.blockedIPs?.filter((ip) => validateIP(ip)),
       };
-      await axios.put(`/api/service/${serviceId}`, serviceToSave);
+      await axios.put(`/api/service/${serviceId}`, serviceToSave, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       router.refresh();
     } catch (error) {
       console.error('Error saving service:', error);
@@ -76,7 +81,10 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      await axios.delete(`/api/service/${service.id}`);
+      const accessToken = await getAccessToken();
+      await axios.delete(`/api/service/${service.id}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       router.push('/services');
     } catch (error) {
       console.error('Error deleting service:', error);

@@ -6,7 +6,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import GoogleAdsense from '@/components/layout/GoogleAdsense';
 import GoogleAdRepair from '@/components/layout/GoogleAdRepair';
-import { AuthProvider } from '@/lib/firebase/firebaseContext';
+import { AuthProvider } from '@/lib/supabase/supbaseContext';
 
 const inter = Inter({ subsets: ['latin'] });
 

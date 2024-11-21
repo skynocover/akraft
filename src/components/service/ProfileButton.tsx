@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/lib/firebase/firebaseContext';
+import { useAuth } from '@/lib/supabase/supbaseContext';
 
 export const ProfileButton: React.FC = () => {
   const { user, loading, googleLogin, logout } = useAuth();
@@ -36,11 +36,11 @@ export const ProfileButton: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
           <User className="mr-2 h-4 w-4" />
-          {user?.displayName}
+          {user?.user_metadata?.full_name}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>UserID: {user?.uid}</DropdownMenuLabel>
+        <DropdownMenuLabel>UserID: {user?.id}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>

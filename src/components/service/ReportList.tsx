@@ -34,6 +34,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
+import { useAuth } from '@/lib/supabase/supbaseContext';
+
 interface ReportListProps {
   serviceId: string;
 }
@@ -44,12 +46,17 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { getAccessToken } = useAuth();
 
   const fetchReports = useCallback(async () => {
     if (!serviceId) return;
     setIsLoading(true);
     try {
-      const response = await axios.get(`/api/service/${serviceId}/reports`);
+      const accessToken = await getAccessToken();
+
+      const response = await axios.get(`/api/service/${serviceId}/reports`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       setReports(response.data);
     } catch (error) {
       console.error('Error fetching reports:', error);
@@ -65,7 +72,9 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
   const handleDeleteReports = async () => {
     setIsLoading(true);
     try {
+      const accessToken = await getAccessToken();
       await axios.delete(`/api/service/${serviceId}/reports`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
         data: { reportIds: selectedReports },
       });
       fetchReports();
@@ -84,8 +93,10 @@ const ReportList: React.FC<ReportListProps> = ({ serviceId }) => {
     setIsLoading(true);
     setDeletingItemId(report.id);
     try {
+      const accessToken = await getAccessToken();
       if (report.reply?.id || report.thread?.id) {
         await axios.delete(`/api/service/${serviceId}/reports`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
           data: { reportIds: [report.id], deleteAssociated: true },
         });
         toast({

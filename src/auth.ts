@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyFirebaseToken } from '@/lib/firebase/firebaseVerify';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
 import { XataClient, ServicesRecord } from '@/lib/xata/xata';
 
@@ -11,17 +12,27 @@ export const handleAuth = (
   handler: (req: FirebaseAuthRequest, res: any) => Promise<NextResponse>,
 ) => {
   return async (req: FirebaseAuthRequest, res: any) => {
-    const sessionCookie = req.cookies.get('session');
-    if (!sessionCookie) {
-      return handler(req, res);
-    }
+    const supabase = createRouteHandlerClient({ cookies });
 
     try {
-      const payload: any = await verifyFirebaseToken(sessionCookie.value);
-      if (!payload) {
-        throw new Error('Invalid session');
+      // 從 Authorization header 獲取 token
+      const authHeader = req.headers.get('authorization');
+      const accessToken = authHeader?.split(' ')[1];
+      if (!authHeader || !accessToken || accessToken === 'null') {
+        return handler(req, res);
       }
-      req.auth = { user: { id: payload.sub || '' } };
+
+      // 使用 access token 獲取用戶資訊
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser(accessToken);
+
+      if (error || !user) {
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      }
+
+      req.auth = { user: { id: user.id } };
       return handler(req, res);
     } catch (error) {
       console.error({ error });
