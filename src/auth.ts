@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase/firebaseAdmin';
+import { verifyFirebaseToken } from '@/lib/firebase/firebaseVerify';
 
 import { XataClient, ServicesRecord } from '@/lib/xata/xata';
 
@@ -17,11 +17,11 @@ export const handleAuth = (
     }
 
     try {
-      const decodedClaims = await auth.verifySessionCookie(
-        sessionCookie.value,
-        true,
-      );
-      req.auth = { user: { id: decodedClaims.uid } };
+      const payload: any = await verifyFirebaseToken(sessionCookie.value);
+      if (!payload) {
+        throw new Error('Invalid session');
+      }
+      req.auth = { user: { id: payload.sub || '' } };
       return handler(req, res);
     } catch (error) {
       console.error({ error });

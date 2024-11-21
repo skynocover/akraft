@@ -1,27 +1,39 @@
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase/firebaseAdmin';
+import { verifyFirebaseToken } from '@/lib/firebase/firebaseVerify';
 
 export async function POST(request: Request) {
   const { token } = await request.json();
 
   try {
-    const expiresIn = 60 * 60 * 24 * 7 * 1000; // 5 days
-    const sessionCookie = await auth.createSessionCookie(token, { expiresIn });
+    const isValid = await verifyFirebaseToken(token);
+    if (!isValid) {
+      throw new Error('Invalid token');
+    }
 
-    cookies().set('session', sessionCookie, {
-      maxAge: expiresIn,
-      httpOnly: true,
-      secure: true,
+    const expiresIn = 60 * 60 * 24 * 7; // 7 days in seconds
+
+    // 設定 cookie
+    return new Response(JSON.stringify({ status: 'success' }), {
+      headers: {
+        'Set-Cookie': `session=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=${expiresIn}; Path=/`,
+        'Content-Type': 'application/json',
+      },
     });
-
-    return NextResponse.json({ status: 'success' });
   } catch (error) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
 
 export async function DELETE() {
-  cookies().delete('session');
-  return NextResponse.json({ status: 'success' });
+  return new Response(JSON.stringify({ status: 'success' }), {
+    headers: {
+      'Set-Cookie':
+        'session=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/',
+      'Content-Type': 'application/json',
+    },
+  });
 }
