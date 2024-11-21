@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { XataClient } from '@/lib/xata/xata';
 import { validatePostInput, extractYouTubeVideoId } from '@/lib/utils/threads';
 import { fileToBase64, generateUserId } from '@/lib/utils/threads';
 import { withPostCheck, PostCheckContext } from '@/lib/middleware/postCheck';
