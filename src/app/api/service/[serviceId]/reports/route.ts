@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { XataClient } from '@/lib/xata/xata';
-import { FirebaseAuthRequest } from '@/auth';
+import { AuthRequest } from '@/auth';
 import {
   withServiceOwnerCheck,
   ServiceOwnerContext,
 } from '@/lib/middleware/serviceOwnerCheck';
 
-const _get = async (req: FirebaseAuthRequest, context: ServiceOwnerContext) => {
+const _get = async (req: AuthRequest, context: ServiceOwnerContext) => {
   try {
     const reports = await context.xata.db.reports.getAll();
     return NextResponse.json(reports);
@@ -68,10 +68,7 @@ export async function POST(
   }
 }
 
-const _delete = async (
-  req: FirebaseAuthRequest,
-  context: ServiceOwnerContext,
-) => {
+const _delete = async (req: AuthRequest, context: ServiceOwnerContext) => {
   try {
     const { xata } = context;
 

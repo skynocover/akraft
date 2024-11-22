@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { validatePostInput, extractYouTubeVideoId } from '@/lib/utils/threads';
 import { fileToBase64, generateUserId } from '@/lib/utils/threads';
 import { withPostCheck, PostCheckContext } from '@/lib/middleware/postCheck';
-import { FirebaseAuthRequest } from '@/auth';
+import { AuthRequest } from '@/auth';
 
-const post = async (req: FirebaseAuthRequest, context: PostCheckContext) => {
+const post = async (req: AuthRequest, context: PostCheckContext) => {
   const { xata, isOwner } = context;
   const formData = await req.formData();
   const name = formData.get('name') as string;

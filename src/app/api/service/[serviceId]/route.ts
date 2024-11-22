@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { LinkItem } from '@/lib/types/link';
-import { FirebaseAuthRequest } from '@/auth';
+import { AuthRequest } from '@/auth';
 import {
   withServiceOwnerCheck,
   ServiceOwnerContext,
 } from '@/lib/middleware/serviceOwnerCheck';
 
-const put = async (req: FirebaseAuthRequest, context: ServiceOwnerContext) => {
+const put = async (req: AuthRequest, context: ServiceOwnerContext) => {
   try {
     const { xata, service } = context;
 

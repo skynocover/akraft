@@ -4,14 +4,14 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 
 import { XataClient, ServicesRecord } from '@/lib/xata/xata';
 
-export interface FirebaseAuthRequest extends NextRequest {
+export interface AuthRequest extends NextRequest {
   auth: { user: { id: string } } | null;
 }
 
 export const handleAuth = (
-  handler: (req: FirebaseAuthRequest, res: any) => Promise<NextResponse>,
+  handler: (req: AuthRequest, res: any) => Promise<NextResponse>,
 ) => {
-  return async (req: FirebaseAuthRequest, res: any) => {
+  return async (req: AuthRequest, res: any) => {
     const supabase = createRouteHandlerClient({ cookies });
 
     try {
@@ -42,7 +42,7 @@ export const handleAuth = (
 };
 
 export const handleRole = (handler: Function) => {
-  return handleAuth(async (req: FirebaseAuthRequest, context: any) => {
+  return handleAuth(async (req: AuthRequest, context: any) => {
     const serviceId = context.params.serviceId;
     const xata = new XataClient({
       branch: serviceId,
