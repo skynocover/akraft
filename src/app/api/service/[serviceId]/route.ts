@@ -17,6 +17,7 @@ const put = async (req: AuthRequest, context: ServiceOwnerContext) => {
     const topLinks = data.topLinks as LinkItem;
     const headLinks = data.headLinks as LinkItem;
     const forbidContents = data.forbidContents as string;
+    const blockedIPs = data.blockedIPs as string[];
     const auth = data.auth as string;
 
     await xata.db.services.update(service.id, {
@@ -26,6 +27,7 @@ const put = async (req: AuthRequest, context: ServiceOwnerContext) => {
       topLinks: topLinks || [],
       headLinks: headLinks || [],
       forbidContents: forbidContents ? forbidContents : [],
+      blockedIPs: blockedIPs || [],
       auth: auth || {},
     });
 
