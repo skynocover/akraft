@@ -7,10 +7,10 @@ assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 
 minify = true
 
-routes = [
-    { pattern = "akraft.net", custom_domain = true },
-    { pattern = "www.akraft.net", custom_domain = true },
-]
+# routes = [
+#     { pattern = "akraft.net", custom_domain = true },
+#     { pattern = "www.akraft.net", custom_domain = true },
+# ]
 
 
 [observability]
