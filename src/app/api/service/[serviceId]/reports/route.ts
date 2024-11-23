@@ -30,7 +30,11 @@ export async function POST(
     const serviceId = params.serviceId;
     const data = await req.json();
 
-    const userIp = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';
+    const userIp =
+      req.ip ||
+      req.headers.get('X-Forwarded-For') ||
+      req.headers.get('cf-connecting-ip') ||
+      'unknown';
     const threadId = data.threadId as string | undefined;
     const replyId = data.replyId as string | undefined;
     const content = data.content as string | undefined;

@@ -19,7 +19,11 @@ const post = async (req: AuthRequest, context: PostCheckContext) => {
     youtubeLink: youtubeLink,
     image,
   };
-  const ip = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';
+  const ip =
+    req.ip ||
+    req.headers.get('X-Forwarded-For') ||
+    req.headers.get('cf-connecting-ip') ||
+    'unknown';
 
   const userId = isOwner ? 'admin' : generateUserId(ip);
 

@@ -22,7 +22,11 @@ const post = async (req: NextRequest, context: PostCheckContext) => {
     sage,
   };
 
-  const ip = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';
+  const ip =
+    req.ip ||
+    req.headers.get('X-Forwarded-For') ||
+    req.headers.get('cf-connecting-ip') ||
+    'unknown';
   const userId = isOwner ? 'admin' : generateUserId(ip);
 
   try {

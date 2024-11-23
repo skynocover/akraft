@@ -4,7 +4,11 @@ import { AuthRequest, handleRole, ServiceRoleContext } from '@/auth';
 export const withPostCheck = (handler: Function) => {
   return handleRole(async (req: AuthRequest, context: ServiceRoleContext) => {
     const { service, xata } = context;
-    const userIp = req.ip || req.headers.get('X-Forwarded-For') || 'unknown';
+    const userIp =
+      req.ip ||
+      req.headers.get('X-Forwarded-For') ||
+      req.headers.get('cf-connecting-ip') ||
+      'unknown';
 
     const blockedIPs = service.blockedIPs || [];
     if (isIpBlocked(userIp, blockedIPs)) {
