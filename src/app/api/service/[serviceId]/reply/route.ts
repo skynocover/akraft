@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validatePostInput, extractYouTubeVideoId } from '@/lib/utils/threads';
 import { fileToBase64, generateUserId } from '@/lib/utils/threads';
 import { withPostCheck, PostCheckContext } from '@/lib/middleware/postCheck';
+import { azureContentSafety } from '@/lib/utils/azure-content-safety';
 
 const post = async (req: NextRequest, context: PostCheckContext) => {
   const { xata, isOwner } = context;
@@ -31,6 +32,27 @@ const post = async (req: NextRequest, context: PostCheckContext) => {
 
   try {
     validatePostInput(input);
+    if (input.image) {
+      try {
+        const { isNSFW } = await azureContentSafety(
+          await fileToBase64(input.image),
+        );
+        if (isNSFW) {
+          throw new Error('NSFW_CONTENT');
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message === 'NSFW_CONTENT') {
+          return NextResponse.json(
+            { error: 'Image appears to contain inappropriate content' },
+            { status: 400 },
+          );
+        }
+        console.warn(
+          'Content safety check failed, proceeding without verification:',
+          error,
+        );
+      }
+    }
 
     if (!threadId) {
       return NextResponse.json(
