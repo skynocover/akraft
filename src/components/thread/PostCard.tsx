@@ -17,6 +17,7 @@ import { validatePostInput, PostInput } from '@/lib/utils/threads';
 import { useAuth } from '@/lib/supabase/supbaseContext';
 
 import { PostContent } from './Post';
+import { classifyImage } from '@/lib/utils/nsfw';
 
 interface PostCardProps {
   description?: string;
@@ -73,6 +74,31 @@ export default function PostCard({
     setIsLoading(true);
 
     try {
+      if (file) {
+        const reader = new FileReader();
+        const nsfwCheck = new Promise((resolve, reject) => {
+          reader.onload = async () => {
+            try {
+              const base64 = reader.result as string;
+              const { isNSFW, predictions } = await classifyImage(base64);
+
+              if (isNSFW) {
+                reject(
+                  new Error('Image appears to contain inappropriate content'),
+                );
+              }
+              resolve(true);
+            } catch (error) {
+              reject(error);
+            }
+          };
+          reader.onerror = () => reject(new Error('Failed to read image file'));
+        });
+
+        reader.readAsDataURL(file);
+        await nsfwCheck;
+      }
+
       const formData = new FormData();
       formData.append('name', name);
       formData.append('content', markdownInfo);

@@ -37,6 +37,7 @@
     "dayjs": "^1.11.12",
     "lucide-react": "^0.427.0",
     "next": "14.2.5",
+    "nsfwjs": "^4.2.1",
     "react": "^18",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
