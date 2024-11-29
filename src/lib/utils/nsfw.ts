@@ -1,47 +1,76 @@
-import * as nsfwjs from 'nsfwjs';
+// module 太大 無法在 worker 使用
 
-const NSFW_THRESHOLD = 0.5;
+// 前端程式碼
+// if (file) {
+//   const reader = new FileReader();
+//   const nsfwCheck = new Promise((resolve, reject) => {
+//     reader.onload = async () => {
+//       try {
+//         const base64 = reader.result as string;
+//         const { isNSFW, predictions } = await classifyImage(base64);
 
-interface ClassifyImageResult {
-  isNSFW: boolean;
-  predictions: nsfwjs.PredictionType[];
-}
+//         if (isNSFW) {
+//           reject(
+//             new Error('Image appears to contain inappropriate content'),
+//           );
+//         }
+//         resolve(true);
+//       } catch (error) {
+//         reject(error);
+//       }
+//     };
+//     reader.onerror = () => reject(new Error('Failed to read image file'));
+//   });
 
-export const classifyImage = async (
-  base64Image: string,
-): Promise<ClassifyImageResult> => {
-  const img = document.createElement('img');
-  img.src = base64Image;
+//   reader.readAsDataURL(file);
+//   await nsfwCheck;
+// }
 
-  return new Promise((resolve) => {
-    img.onload = async () => {
-      // 創建 canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+//////////
+// import * as nsfwjs from 'nsfwjs';
 
-      // 將圖片繪製到 canvas
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
+// const NSFW_THRESHOLD = 0.5;
 
-      // 載入模型並進行分類
-      const model = await nsfwjs.load();
-      const predictions = await model.classify(img);
+// interface ClassifyImageResult {
+//   isNSFW: boolean;
+//   predictions: nsfwjs.PredictionType[];
+// }
 
-      const nsfwScore = predictions.reduce(
-        (score: number, prediction: nsfwjs.PredictionType) => {
-          if (['Porn', 'Hentai', 'Sexy'].includes(prediction.className)) {
-            return score + prediction.probability;
-          }
-          return score;
-        },
-        0,
-      );
+// export const classifyImage = async (
+//   base64Image: string,
+// ): Promise<ClassifyImageResult> => {
+//   const img = document.createElement('img');
+//   img.src = base64Image;
 
-      resolve({
-        isNSFW: nsfwScore > NSFW_THRESHOLD,
-        predictions,
-      });
-    };
-  });
-};
+//   return new Promise((resolve) => {
+//     img.onload = async () => {
+//       // 創建 canvas
+//       const canvas = document.createElement('canvas');
+//       canvas.width = img.width;
+//       canvas.height = img.height;
+
+//       // 將圖片繪製到 canvas
+//       const ctx = canvas.getContext('2d');
+//       ctx?.drawImage(img, 0, 0);
+
+//       // 載入模型並進行分類
+//       const model = await nsfwjs.load();
+//       const predictions = await model.classify(img);
+
+//       const nsfwScore = predictions.reduce(
+//         (score: number, prediction: nsfwjs.PredictionType) => {
+//           if (['Porn', 'Hentai', 'Sexy'].includes(prediction.className)) {
+//             return score + prediction.probability;
+//           }
+//           return score;
+//         },
+//         0,
+//       );
+
+//       resolve({
+//         isNSFW: nsfwScore > NSFW_THRESHOLD,
+//         predictions,
+//       });
+//     };
+//   });
+// };
