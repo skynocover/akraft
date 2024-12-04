@@ -1,12 +1,7 @@
-import ContentSafetyClient, {
-  isUnexpected,
-} from '@azure-rest/ai-content-safety';
-import { AzureKeyCredential } from '@azure/core-auth';
+import ky from 'ky';
 
 const endpoint = process.env['CONTENT_SAFETY_ENDPOINT'] || '<endpoint>';
 const key = process.env['CONTENT_SAFETY_API_KEY'] || '<key>';
-const credential = new AzureKeyCredential(key);
-const client = ContentSafetyClient(endpoint, credential);
 
 interface CategoryAnalysis {
   category: string;
@@ -21,19 +16,18 @@ interface ContentSafetyResponse {
 export const azureContentSafety = async (
   base64Image: string,
 ): Promise<ContentSafetyResponse> => {
-  const analyzeImageOption = { image: { content: base64Image } };
-  const analyzeImageParameters = { body: analyzeImageOption };
+  const data: any = await ky
+    .post(`${endpoint}/contentsafety/image:analyze?api-version=2024-09-01`, {
+      json: { image: { content: base64Image } },
+      headers: {
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': key,
+      },
+    })
+    .json();
 
-  const result = await client
-    .path('/image:analyze')
-    .post(analyzeImageParameters);
-
-  if (isUnexpected(result)) {
-    throw result;
-  }
-
-  const totalSeverity = result.body.categoriesAnalysis.reduce(
-    (sum, analysis) => sum + (analysis.severity || 0),
+  const totalSeverity = data.categoriesAnalysis.reduce(
+    (sum: number, analysis: CategoryAnalysis) => sum + (analysis.severity || 0),
     0,
   );
 
@@ -41,7 +35,7 @@ export const azureContentSafety = async (
 
   return {
     isNSFW,
-    details: result.body.categoriesAnalysis.map((analysis) => ({
+    details: data.categoriesAnalysis.map((analysis: CategoryAnalysis) => ({
       category: analysis.category,
       severity: analysis.severity || 0,
     })),

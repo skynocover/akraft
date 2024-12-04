@@ -33,10 +33,15 @@ const post = async (req: AuthRequest, context: PostCheckContext) => {
 
     if (input.image) {
       try {
-        const { isNSFW } = await azureContentSafety(
+        const { isNSFW, details } = await azureContentSafety(
           await fileToBase64(input.image),
         );
         if (isNSFW) {
+          console.warn(
+            `[Content Safety ${new Date().toISOString()}]. Details: ${JSON.stringify(
+              details,
+            )}. SourceIP: ${ip}`,
+          );
           throw new Error('NSFW_CONTENT');
         }
       } catch (error) {

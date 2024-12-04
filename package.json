@@ -17,8 +17,6 @@
     "deploy:worker": "pnpm build:worker && wrangler deploy"
   },
   "dependencies": {
-    "@azure-rest/ai-content-safety": "^1.0.0",
-    "@azure/core-auth": "^1.9.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.1",
@@ -37,9 +35,9 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.12",
+    "ky": "^1.7.2",
     "lucide-react": "^0.427.0",
     "next": "14.2.5",
-    "nsfwjs": "^4.2.1",
     "react": "^18",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
