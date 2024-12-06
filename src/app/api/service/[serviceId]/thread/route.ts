@@ -4,6 +4,7 @@ import { fileToBase64, generateUserId } from '@/lib/utils/threads';
 import { withPostCheck, PostCheckContext } from '@/lib/middleware/postCheck';
 import { AuthRequest } from '@/auth';
 import { azureContentSafety } from '@/lib/utils/azure-content-safety';
+import { uploadToCloudflare } from '@/lib/cloudflare/images';
 
 const post = async (req: AuthRequest, context: PostCheckContext) => {
   const { xata, isOwner } = context;
@@ -58,19 +59,20 @@ const post = async (req: AuthRequest, context: PostCheckContext) => {
       }
     }
 
+    let imageToken = undefined;
+    if (image) {
+      imageToken = await uploadToCloudflare(
+        Buffer.from(await image.arrayBuffer()),
+        image.name,
+      );
+    }
+
     const thread = await xata.db.threads.create({
       title: title.trim() || 'Untitled',
       name: name.trim() || 'anonymous',
       content,
       youtubeID: youtubeLink ? extractYouTubeVideoId(youtubeLink) : undefined,
-      image: image
-        ? {
-            name: encodeURIComponent(image.name),
-            mediaType: image.type,
-            base64Content: await fileToBase64(image),
-            enablePublicUrl: true,
-          }
-        : undefined,
+      imageToken,
       replyAt: new Date(),
       userId,
       userIp: ip,

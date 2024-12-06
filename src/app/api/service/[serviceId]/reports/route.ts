@@ -6,6 +6,7 @@ import {
   withServiceOwnerCheck,
   ServiceOwnerContext,
 } from '@/lib/middleware/serviceOwnerCheck';
+import { deleteFromCloudflare } from '@/lib/cloudflare/images';
 
 const _get = async (req: AuthRequest, context: ServiceOwnerContext) => {
   try {
@@ -96,12 +97,24 @@ const _delete = async (req: AuthRequest, context: ServiceOwnerContext) => {
       for (const report of reportsToDelete) {
         if (report.reply && report.thread) {
           // Case: Deleting a reply
+          const reply = await xata.db.replies.read(report.reply.id);
+          if (reply?.imageToken) {
+            await deleteFromCloudflare(reply.imageToken);
+          }
           await xata.db.replies.delete(report.reply.id);
         } else if (report.thread && !report.reply) {
           // Case: Deleting a thread
           const relatedReplies = await xata.db.replies
             .filter({ thread: report.thread.id })
             .getAll();
+
+          // Delete images from Cloudflare for all replies
+          for (const reply of relatedReplies) {
+            if (reply.imageToken) {
+              await deleteFromCloudflare(reply.imageToken);
+            }
+          }
+
           await xata.db.replies.delete(relatedReplies.map((reply) => reply.id));
 
           // Delete all associated reports
@@ -109,6 +122,12 @@ const _delete = async (req: AuthRequest, context: ServiceOwnerContext) => {
             .filter({ thread: report.thread.id })
             .getAll();
           await xata.db.reports.delete(relatedReports.map((r) => r.id));
+
+          // Check and delete thread image if exists
+          const thread = await xata.db.threads.read(report.thread.id);
+          if (thread?.imageToken) {
+            await deleteFromCloudflare(thread.imageToken);
+          }
 
           // Delete the thread
           await xata.db.threads.delete(report.thread.id);

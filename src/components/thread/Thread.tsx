@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { ThreadWithReplies } from '@/lib/types/thread';
 import { ReplyButton } from './ReplyButton';
 import { PostMeta, PostComponent } from './Post';
+import { getImageUrl } from '@/lib/cloudflare/images';
 
 interface ThreadComponentProps {
   serviceId: string;
@@ -105,7 +106,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
           content={thread.content || ''}
           imageURL={
             thread.imageToken
-              ? `https://imagedelivery.net/BFt8NicDCgLDzBn7OOPidw/${thread.imageToken}/public`
+              ? getImageUrl(thread.imageToken)
               : thread.image || ''
           }
           youtubeID={thread.youtubeID || ''}
@@ -158,7 +159,7 @@ const ThreadComponent: React.FC<ThreadComponentProps> = ({
                     <PostComponent
                       imageURL={
                         reply.imageToken
-                          ? `https://imagedelivery.net/BFt8NicDCgLDzBn7OOPidw/${reply.imageToken}/public`
+                          ? getImageUrl(reply.imageToken)
                           : reply.image || ''
                       }
                       content={reply.content || ''}
