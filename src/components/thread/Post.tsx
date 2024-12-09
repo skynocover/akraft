@@ -35,12 +35,16 @@ const extractContentFromChildren = (
         // 如果下一行有文字 則要抓第二個
         if (React.isValidElement(element.props.children[1])) {
           const child = element.props.children[1] as React.ReactElement;
-          const [firstLine, ...rest] = child.props.children[0].split('\r\n');
-
-          return {
-            content: firstLine,
-            afterNewline: rest.length > 0 ? `\r\n${rest.join('\r\n')}` : '',
-          };
+          if (
+            Array.isArray(child.props.children) &&
+            typeof child.props.children[0] === 'string'
+          ) {
+            const [firstLine, ...rest] = child.props.children[0].split('\r\n');
+            return {
+              content: firstLine,
+              afterNewline: rest.length > 0 ? `\r\n${rest.join('\r\n')}` : '',
+            };
+          }
         }
       }
     }
