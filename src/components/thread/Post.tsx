@@ -6,6 +6,7 @@ import { Image } from './Image';
 import { ReportButton } from './ReportButton';
 import { formateTime } from '@/lib/utils/dayjs';
 import { ReplyNoButton } from './ReplyButton';
+import { ErrorBoundary } from 'react-error-boundary';
 
 // for scroll to No.
 // 要抓的是 >> 因此 > 不會被抓到
@@ -61,90 +62,99 @@ export const PostContent: React.FC<{ content: string }> = ({ content }) => {
   };
 
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        h1: ({ node, ...props }) => (
-          <h1 className="text-3xl font-bold mb-4" {...props} />
-        ),
-        h2: ({ node, ...props }) => (
-          <h2 className="text-2xl font-semibold mb-3" {...props} />
-        ),
-        h3: ({ node, ...props }) => (
-          <h3 className="text-xl font-semibold mb-2" {...props} />
-        ),
-        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
-        ul: ({ node, ...props }) => (
-          <ul className="list-disc pl-5 mb-4" {...props} />
-        ),
-        ol: ({ node, ...props }) => (
-          <ol className="list-decimal pl-5 mb-4" {...props} />
-        ),
-        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-        a: ({ node, href, children, ...props }) => (
-          <a
-            href={href}
-            className="text-blue-500 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {children}
-          </a>
-        ),
-        blockquote: ({ node, children, ...props }) => {
-          const { content, afterNewline } =
-            extractContentFromChildren(children);
-
-          if (content.startsWith('rec_')) {
-            return (
-              <>
-                <p
-                  onClick={() => handleBlockquoteClick(content)}
-                  className="text-blue-500 transition-colors duration-300 hover:underline cursor-pointer"
-                >
-                  {'>> ' + content + '\n'}
-                </p>
-                {afterNewline}
-              </>
-            );
-          }
-
-          // 如果blockquote 裡面有換行 則需要另外處理
-          for (const child of children as React.ReactNode[]) {
-            if (!React.isValidElement(child)) continue;
-
-            const content = child.props.children;
-            if (typeof content !== 'string' || !content.includes('\r\n'))
-              continue;
-
-            const [firstLine, ...rest] = content.split('\r\n');
-            return (
-              <>
-                <blockquote
-                  className="border-l-4 border-gray-300 pl-4 italic my-1"
-                  {...props}
-                >
-                  {firstLine}
-                </blockquote>
-                {rest}
-              </>
-            );
-          }
-
-          return (
-            <blockquote
-              className={`border-l-4 border-gray-300 pl-4 italic my-1`}
-              {...props}
+    <ErrorBoundary
+      fallback={
+        <div className="p-4 text-red-600 border border-red-300 rounded bg-red-50">
+          Failed to render content. Please try refreshing the page or contact
+          support if the issue persists.
+        </div>
+      }
+    >
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ node, ...props }) => (
+            <h1 className="text-3xl font-bold mb-4" {...props} />
+          ),
+          h2: ({ node, ...props }) => (
+            <h2 className="text-2xl font-semibold mb-3" {...props} />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3 className="text-xl font-semibold mb-2" {...props} />
+          ),
+          p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+          ul: ({ node, ...props }) => (
+            <ul className="list-disc pl-5 mb-4" {...props} />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol className="list-decimal pl-5 mb-4" {...props} />
+          ),
+          li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+          a: ({ node, href, children, ...props }) => (
+            <a
+              href={href}
+              className="text-blue-500 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               {children}
-            </blockquote>
-          );
-        },
-      }}
-      className="line-break prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
-    >
-      {content}
-    </ReactMarkdown>
+            </a>
+          ),
+          blockquote: ({ node, children, ...props }) => {
+            const { content, afterNewline } =
+              extractContentFromChildren(children);
+
+            if (content.startsWith('rec_')) {
+              return (
+                <>
+                  <p
+                    onClick={() => handleBlockquoteClick(content)}
+                    className="text-blue-500 transition-colors duration-300 hover:underline cursor-pointer"
+                  >
+                    {'>> ' + content + '\n'}
+                  </p>
+                  {afterNewline}
+                </>
+              );
+            }
+
+            // 如果blockquote 裡面有換行 則需要另外處理
+            for (const child of children as React.ReactNode[]) {
+              if (!React.isValidElement(child)) continue;
+
+              const content = child.props.children;
+              if (typeof content !== 'string' || !content.includes('\r\n'))
+                continue;
+
+              const [firstLine, ...rest] = content.split('\r\n');
+              return (
+                <>
+                  <blockquote
+                    className="border-l-4 border-gray-300 pl-4 italic my-1"
+                    {...props}
+                  >
+                    {firstLine}
+                  </blockquote>
+                  {rest}
+                </>
+              );
+            }
+
+            return (
+              <blockquote
+                className={`border-l-4 border-gray-300 pl-4 italic my-1`}
+                {...props}
+              >
+                {children}
+              </blockquote>
+            );
+          },
+        }}
+        className="line-break prose prose-sm sm:prose lg:prose-lg max-w-none break-words overflow-wrap-anywhere"
+      >
+        {content}
+      </ReactMarkdown>
+    </ErrorBoundary>
   );
 };
 
