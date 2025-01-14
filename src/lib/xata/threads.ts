@@ -53,11 +53,7 @@ export const getThreads = async ({
           offset: offset,
         },
       }),
-      xata.db.threads.aggregate({
-        totalRecords: {
-          count: '*',
-        },
-      }),
+      xata.sql`SELECT COUNT(*) FROM threads`,
     ]);
 
     const threadsWithReplies: ThreadWithReplies[] = await Promise.all(
@@ -81,7 +77,8 @@ export const getThreads = async ({
       }),
     );
 
-    const totalPages = Math.ceil(totalRecords.aggs.totalRecords / pageSize);
+    // @ts-ignore
+    const totalPages = Math.ceil(totalRecords.records[0].count / pageSize);
 
     return {
       threads: threadsWithReplies,
