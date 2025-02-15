@@ -232,7 +232,14 @@ export const PostMeta: React.FC<{
       id={replyId || threadId}
     >
       <span className="font-semibold text-gray-700">{name}</span>
-      <span>ID: {userId}</span>
+      <span>
+        ID:{' '}
+        <span
+          className={userId === 'admin' ? 'font-semibold text-purple-500' : ''}
+        >
+          {userId}
+        </span>
+      </span>
       <span className="ml-auto flex items-center">
         {formateTime(createdAt)}
         <ReplyNoButton
