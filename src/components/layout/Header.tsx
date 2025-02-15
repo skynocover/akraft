@@ -1,9 +1,9 @@
 'use client';
 import { Github } from 'lucide-react';
 import Link from 'next/link';
+import { UserButton } from '@stackframe/stack';
 
 import { Button } from '@/components/ui/button';
-import { ProfileButton } from '@/components/service/ProfileButton';
 
 export default function Header() {
   return (
@@ -25,7 +25,7 @@ export default function Header() {
             <span className="sr-only">GitHub</span>
           </Link>
         </Button>
-        <ProfileButton />
+        <UserButton />
       </nav>
     </div>
   );

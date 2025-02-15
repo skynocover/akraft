@@ -2,18 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { useAuth } from '@/lib/supabase/supbaseContext';
+import { useUser } from '@stackframe/stack';
 import { getService } from '@/lib/xata/threads';
 
 import ServiceEditor from '@/components/service/serviceEditor';
 import ReportList from '@/components/service/ReportList';
 import Header from '@/components/layout/Header';
+import Loading from '@/app/loading';
 
 export default function Page({ params }: { params: { serviceId: string } }) {
   const [service, setService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const { user } = useAuth();
+  const user = useUser();
 
   useEffect(() => {
     const fetchService = async () => {
@@ -31,7 +32,7 @@ export default function Page({ params }: { params: { serviceId: string } }) {
   }, [params.serviceId]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (!service) {

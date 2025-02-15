@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import * as jose from 'jose';
 
 import { XataClient, ServicesRecord } from '@/lib/xata/xata';
 
@@ -8,12 +7,16 @@ export interface AuthRequest extends NextRequest {
   auth: { user: { id: string } } | null;
 }
 
+const jwks = jose.createRemoteJWKSet(
+  new URL(
+    `https://api.stack-auth.com/api/v1/projects/${process.env.NEXT_PUBLIC_STACK_PROJECT_ID}/.well-known/jwks.json`,
+  ),
+);
+
 export const handleAuth = (
   handler: (req: AuthRequest, res: any) => Promise<NextResponse>,
 ) => {
   return async (req: AuthRequest, res: any) => {
-    const supabase = createRouteHandlerClient({ cookies });
-
     try {
       // 從 Authorization header 獲取 token
       const authHeader = req.headers.get('authorization');
@@ -22,17 +25,9 @@ export const handleAuth = (
         return handler(req, res);
       }
 
-      // 使用 access token 獲取用戶資訊
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser(accessToken);
+      const { payload } = await jose.jwtVerify(accessToken, jwks);
 
-      if (error || !user) {
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-      }
-
-      req.auth = { user: { id: user.id } };
+      req.auth = { user: { id: payload.sub || '' } };
       return handler(req, res);
     } catch (error) {
       console.error({ error });

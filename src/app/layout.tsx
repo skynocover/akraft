@@ -2,11 +2,10 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
 import './globals.css';
+import { StackProvider, StackTheme } from '@stackframe/stack';
 
+import { stackServerApp } from '@/lib/stack-auth/stack';
 import { Toaster } from '@/components/ui/toaster';
-import GoogleAdsense from '@/components/layout/GoogleAdsense';
-import GoogleAdRepair from '@/components/layout/GoogleAdRepair';
-import { AuthProvider } from '@/lib/supabase/supbaseContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,26 +22,26 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <GoogleAdsense />
-        <GoogleAdRepair />
-        <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            <main className="flex-grow container ">{children}</main>
-            <Toaster />
-            <footer className="border-t bg-background">
-              <div className="container py-2 text-center text-xs text-muted-foreground">
-                © 2024 Akraft. All rights reserved.{' '}
-                <Link
-                  href="https://akraft.net"
-                  target="_blank"
-                  className="underline"
-                >
-                  Visit here
-                </Link>
-              </div>
-            </footer>
-          </div>
-        </AuthProvider>
+        <StackProvider app={stackServerApp}>
+          <StackTheme>
+            <div className="flex flex-col min-h-screen">
+              <main className="flex-grow container ">{children}</main>
+              <Toaster />
+              <footer className="border-t bg-background">
+                <div className="container py-2 text-center text-xs text-muted-foreground">
+                  © 2024 Akraft. All rights reserved.{' '}
+                  <Link
+                    href="https://akraft.net"
+                    target="_blank"
+                    className="underline"
+                  >
+                    Visit here
+                  </Link>
+                </div>
+              </footer>
+            </div>
+          </StackTheme>
+        </StackProvider>
       </body>
     </html>
   );

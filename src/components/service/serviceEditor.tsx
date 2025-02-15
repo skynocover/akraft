@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Save, X } from 'lucide-react';
-import { useAuth } from '@/lib/supabase/supbaseContext';
+import { useUser } from '@stackframe/stack';
 
 import { LinkItem } from '@/lib/types/link';
 import { ServicesRecord } from '@/lib/xata/xata';
@@ -35,7 +35,7 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   serviceId,
 }) => {
   const router = useRouter();
-  const { getAccessToken } = useAuth();
+  const user = useUser();
   const [editedService, setEditedService] = useState<ServicesRecord>(service);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,7 +61,9 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      const accessToken = await getAccessToken();
+      if (!user) return;
+      const { accessToken } = await user.getAuthJson();
+
       const serviceToSave: ServicesRecord = {
         ...editedService,
         forbidContents: editedService.forbidContents?.filter((item) => !!item),
@@ -81,7 +83,9 @@ const ServiceEditor: React.FC<ServiceEditorProps> = ({
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      const accessToken = await getAccessToken();
+      if (!user) return;
+      const { accessToken } = await user.getAuthJson();
+
       await axios.delete(`/api/service/${service.id}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });

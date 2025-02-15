@@ -155,15 +155,16 @@ export const getThreadsWithReplyCount = async ({
 
     const threadsWithReplies: ThreadWithReplyCount[] = await Promise.all(
       threads.map(async (thread) => {
-        const { aggs } = await xata.db.replies.aggregate(
-          { totalCount: { count: '*' } },
-          { thread: { id: thread.id } },
-        );
+        const replyCount: any = await xata.sql`
+          SELECT COUNT(*) as count 
+          FROM replies 
+          WHERE thread = ${thread.id}
+        `;
 
         return {
           ...thread,
-          image: thread.image?.url,
-          replyCount: aggs.totalCount,
+          image: '',
+          replyCount: replyCount.records[0].count,
         };
       }),
     );

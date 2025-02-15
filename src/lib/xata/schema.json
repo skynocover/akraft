@@ -38,7 +38,6 @@
           "defaultValue": "anonymous"
         },
         { "name": "content", "type": "text" },
-        { "name": "image", "type": "file" },
         { "name": "imageToken", "type": "string" },
         { "name": "youtubeID", "type": "string" },
         { "name": "replyAt", "type": "datetime" },
@@ -55,7 +54,6 @@
           "defaultValue": "anonymous"
         },
         { "name": "content", "type": "text" },
-        { "name": "image", "type": "file" },
         { "name": "imageToken", "type": "string" },
         { "name": "youtubeID", "type": "string" },
         { "name": "sage", "type": "bool" },

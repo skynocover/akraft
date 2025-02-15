@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ThreadWithReplyCount } from '@/lib/types/thread';
 import { formateTime } from '@/lib/utils/dayjs';
 import { PostContent, MediaContent } from '../thread/Post';
+import { getImageUrl } from '@/lib/cloudflare/images';
 
 interface ThreadCarouselProps {
   serviceId: string;
@@ -31,11 +32,11 @@ export const ThreadCarousel: React.FC<ThreadCarouselProps> = ({
   };
 
   const renderPreview = (thread: ThreadWithReplyCount) => {
-    if (thread.image || thread.youtubeID) {
+    if (thread.imageToken || thread.youtubeID) {
       return (
         <div className="h-40 w-full overflow-hidden">
           <MediaContent
-            imageURL={thread.image || ''}
+            imageURL={thread.imageToken ? getImageUrl(thread.imageToken) : ''}
             youtubeID={thread.youtubeID || ''}
           />
         </div>

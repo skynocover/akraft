@@ -5,6 +5,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@stackframe/stack';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { validatePostInput, PostInput } from '@/lib/utils/threads';
-import { useAuth } from '@/lib/supabase/supbaseContext';
 
 import { PostContent } from './Post';
 
@@ -36,7 +36,7 @@ export default function PostCard({
   initInput,
 }: PostCardProps) {
   const isReply = !!onClose;
-  const { user, getAccessToken } = useAuth();
+  const user = useUser();
   const fileInputID = `dropzone-file-${isReply ? `${threadId}-reply` : 'page'}`;
   const [markdownInfo, setMarkdownInfo] = useState(initInput || '');
   const [title, setTitle] = useState('');
@@ -109,7 +109,9 @@ export default function PostCard({
         formData.append('image', file);
       }
 
-      const accessToken = await getAccessToken();
+      const { accessToken } = user
+        ? await user.getAuthJson()
+        : { accessToken: null };
 
       await axios.post(
         isReply
