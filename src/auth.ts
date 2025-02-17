@@ -7,12 +7,6 @@ export interface AuthRequest extends NextRequest {
   auth: { user: { id: string } } | null;
 }
 
-const jwks = jose.createRemoteJWKSet(
-  new URL(
-    `https://api.stack-auth.com/api/v1/projects/${process.env.NEXT_PUBLIC_STACK_PROJECT_ID}/.well-known/jwks.json`,
-  ),
-);
-
 export const handleAuth = (
   handler: (req: AuthRequest, res: any) => Promise<NextResponse>,
 ) => {
@@ -24,6 +18,12 @@ export const handleAuth = (
       if (!authHeader || !accessToken || accessToken === 'null') {
         return handler(req, res);
       }
+
+      const jwks = jose.createRemoteJWKSet(
+        new URL(
+          `https://api.stack-auth.com/api/v1/projects/${process.env.NEXT_PUBLIC_STACK_PROJECT_ID}/.well-known/jwks.json`,
+        ),
+      );
 
       const { payload } = await jose.jwtVerify(accessToken, jwks);
 
