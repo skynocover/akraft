@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import * as jose from 'jose';
+import ky from 'ky';
 
 import { XataClient, ServicesRecord } from '@/lib/xata/xata';
 
@@ -19,15 +19,19 @@ export const handleAuth = (
         return handler(req, res);
       }
 
-      const jwks = jose.createRemoteJWKSet(
-        new URL(
-          `https://api.stack-auth.com/api/v1/projects/${process.env.NEXT_PUBLIC_STACK_PROJECT_ID}/.well-known/jwks.json`,
-        ),
-      );
+      const data: { id: string } = await ky
+        .get('https://api.stack-auth.com/api/v1/users/me', {
+          headers: {
+            'X-Stack-Access-Token': accessToken,
+            'X-Stack-Project-Id': process.env.NEXT_PUBLIC_STACK_PROJECT_ID,
+            'x-stack-secret-server-key': process.env.STACK_SECRET_SERVER_KEY,
+            'X-Stack-Access-Type': 'server',
+          },
+        })
+        .json();
 
-      const { payload } = await jose.jwtVerify(accessToken, jwks);
+      req.auth = { user: { id: data.id || '' } };
 
-      req.auth = { user: { id: payload.sub || '' } };
       return handler(req, res);
     } catch (error) {
       console.error({ error });
