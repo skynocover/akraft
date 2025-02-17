@@ -31,7 +31,10 @@ export const handleAuth = (
       return handler(req, res);
     } catch (error) {
       console.error({ error });
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Invalid session', message: error },
+        { status: 401 },
+      );
     }
   };
 };
