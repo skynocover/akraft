@@ -6,6 +6,7 @@ import Title from '@/components/layout/Title';
 import Pagination from '@/components/layout/Pagination';
 import ThreadComponent from '@/components/thread/Thread';
 import { getService, getThreads } from '@/lib/xata/threads';
+import { AdsterraAdThread } from '@/components/layout/adsterraAd';
 
 export default async function Page({
   params,
@@ -54,6 +55,7 @@ export default async function Page({
           serviceOwnerId={service.ownerId || ''}
         />
       ))}
+      <AdsterraAdThread />
       <Pagination
         totalPages={totalPages}
         currentPage={currentPage}
