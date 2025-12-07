@@ -55,7 +55,7 @@ export default async function Page({
           serviceOwnerId={service.ownerId || ''}
         />
       ))}
-      <AdsterraAdThread />
+      {/* <AdsterraAdThread /> */}
       <Pagination
         totalPages={totalPages}
         currentPage={currentPage}
